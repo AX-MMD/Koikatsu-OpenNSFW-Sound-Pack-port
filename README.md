@@ -9,13 +9,15 @@ Each sound clip has been adapted into a 3DSE Studio Item to use with Timeline. T
 In `Add->Item->3D SFX` you will see multiple sub-menus in the following form: 
 
     Category [Author Name][OpenNSFW]. 
-You will also see these tags on each item when using the search function. This should help with credit attribution if you want to publish works, commercial or not, as required by the terms of the OpenNSFW Sound Pack.
+You will also see these tags on each item when using the search function.
     
 Example:
 
     Plaps [LeHornySFX3D][OpenNSFW]
     Plaps [Author A][OpenNSFW]
     Squirt [Author B][OpenNSFW]
+
+This should help with credit attribution if you want to publish works, commercial or not, as required by the terms of the OpenNSFW Sound Pack.
 
 # OpenNSFW
 
