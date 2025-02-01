@@ -44,7 +44,9 @@ Credit attribution for smaller projects/loops:
 For anything larger and/or with a credits section, include every individual artist/contributor.
 
 > SFX Pack: @name of author | @OpenNSFWSP
+
 Or
+
 > SFX Pack: @authorA @authorB @OpenNSFWSP
 
 # Downloads
