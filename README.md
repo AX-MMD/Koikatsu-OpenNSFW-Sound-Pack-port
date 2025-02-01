@@ -1,6 +1,6 @@
 # Koikatsu OpenNSFW Sound Pack port
 
-This is a port of the [OpenNSFW Sound Pack](https://opennsfw.carrd.co/) as a mod for Koikatsu Studio. The pack contains various types of NSFW sounds from various creators, so I will divide it in multiple mods.
+This is a port of the [OpenNSFW Sound Pack](https://opennsfw.carrd.co/) as a mod for Koikatsu Studio. The pack contains various types of NSFW sounds from various creators, so I will divide it into multiple mods.
 
 (Only contains `Plaps/Squishy (LeHornySFX3D)` as of 2025-01-31, more on the way)
 
@@ -23,12 +23,13 @@ This should help with credit attribution if you want to publish works, commercia
 
 (AX-MMD and this repository are not affiliated with OpenNSFW)
 
-[OpenNSFW Sound Pack](https://opennsfw.carrd.co/) is a collaborative NSFW sound resource founded with the goal of giving accessible studio quality NSFW
-SFX to all content creators at no cost. They only require adherence to the terms documented in [README - OpenNSFW SFX Pack Terms.pdf](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/blob/main/README%20-%20OpenNSFW%20SFX%20Pack%20Terms.pdf) (you can check the link on their homepage for an up-to-date terms document)
+[OpenNSFW Sound Pack](https://opennsfw.carrd.co/) is a collaborative NSFW sound resource founded with the goal of giving accessible studio quality NSFW SFX to all content creators at no cost. They only require adherence to the terms documented in [README - OpenNSFW SFX Pack Terms.pdf](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/blob/main/README%20-%20OpenNSFW%20SFX%20Pack%20Terms.pdf).
+
+(you can check the link on their homepage for an up-to-date terms document).
 
 In short, the terms and conditions to publish works that use audio content from OpenNSFW Sound Pack are:
 
-* Read the [terms document](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/blob/main/README%20-%20OpenNSFW%20SFX%20Pack%20Terms.pdf) in its entirety (less then 5 easy to read pages as of 2025-01-31).
+* Read the [terms document](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/blob/main/README%20-%20OpenNSFW%20SFX%20Pack%20Terms.pdf) in its entirety (less than 5 easy to read pages as of 2025-01-31).
 * Use the audio content in any form of media production, commercial or not, without any requirement to compensate OpenNSFW.
 * Don't repack the audio content under a different Sound Pack.
 * Include credits when publishing works that use content from OpenNSFW Sound Pack.
