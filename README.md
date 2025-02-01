@@ -39,7 +39,7 @@ In short, the terms and conditions to publish works that use audio content from 
 
 Credit attribution for smaller projects/loops:
 
-> @OpenNSFWSP
+> SFX Pack: @OpenNSFWSP
 
 For anything larger and/or with a credits section, include every individual artist/contributor.
 
