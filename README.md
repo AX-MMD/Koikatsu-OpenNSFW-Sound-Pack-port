@@ -10,7 +10,7 @@ In `Add->Item->3D SFX` you will see multiple sub-menus in the following form:
 
 > Category [Author Name][OpenNSFW]. 
 
-You will also see these tags on each item when using the search function. This should help with credit attribution if you want to publish works, commercial or not, as required by the terms of the [OpenNSFW Sound Pack](https://opennsfw.carrd.co/).
+You will also see these tags on each item when using the search function.
     
 Example:
 
@@ -19,6 +19,8 @@ Example:
 > Plaps [Author A][OpenNSFW]
 
 > Squirt [Author B][OpenNSFW]
+
+This is to help with credit attribution if you want to publish works, commercial or not, as required by the terms of the [OpenNSFW Sound Pack](https://opennsfw.carrd.co/).
 
 # OpenNSFW
 
