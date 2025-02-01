@@ -15,7 +15,9 @@ You will also see these tags on each item when using the search function. This s
 Example:
 
 > Plaps [LeHornySFX3D][OpenNSFW]
+
 > Plaps [Author A][OpenNSFW]
+
 > Squirt [Author B][OpenNSFW]
 
 # OpenNSFW
