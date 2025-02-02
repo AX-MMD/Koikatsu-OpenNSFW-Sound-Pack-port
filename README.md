@@ -2,7 +2,7 @@
 
 This is a port of the [OpenNSFW Sound Pack](https://opennsfw.carrd.co/) as a mod for Koikatsu Studio. The pack contains various types of NSFW sounds from various creators, so I will divide it into multiple mods.
 
-(Only contains `OpenNSFW/Plaps/Squishy (LeHornySFX3D)` as of 2025-01-31, more on the way)
+(Only contains content from `OpenNSFW/Plaps/` as of 2025-02-01, more on the way)
 
 Each sound clip has been adapted into a 3DSE Studio Item to use with Timeline. They can be accessed in Charastudio's menu `Add->Item->3D SFX` or via the search function (`opennsfw`).
 
