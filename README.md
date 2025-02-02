@@ -29,7 +29,6 @@ This is to help with credit attribution if you want to publish works, commercial
 > DISCLAIMER:
 > I am not affiliated with OpenNSFW, so this excerpt is only a comprehensive summary of the terms of use from OpenNSFW.
 
-
 [OpenNSFW Sound Pack](https://opennsfw.carrd.co/) is a collaborative NSFW sound resource founded with the goal of giving accessible studio quality NSFW SFX to all content creators at no cost. They only require adherence to the terms documented in [README - OpenNSFW SFX Pack Terms.pdf](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/blob/main/README%20-%20OpenNSFW%20SFX%20Pack%20Terms.pdf) (you can check the link on their homepage for an up-to-date terms document).
 
 In short, the terms and conditions to publish works that use audio content from OpenNSFW Sound Pack are:
@@ -87,7 +86,7 @@ Releases page: https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/relea
 
 > 免責事項：私はOpenNSFWの関係者ではないので、この抜粋はOpenNSFWからの利用規約の包括的な要約に過ぎない。
 
-[OpenNSFWサウンドパック](https://opennsfw.carrd.co/)は、すべてのコンテンツクリエイターにアクセス可能なスタジオ品質のNSFW SFXを無償で提供することを目標に設立された、NSFWサウンドリソースの共同開発です。彼らは、[README - OpenNSFW SFX Pack Terms.pdf](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/blob/main/README%20-%20OpenNSFW%20SFX%20Pack%20Terms.pdf)に文書化された条件を遵守することだけを要求します（最新の条件文書は、彼らのホームページのリンクから確認できます）。
+[OpenNSFW Sound Pack](https://opennsfw.carrd.co/)は、すべてのコンテンツクリエイターにアクセス可能なスタジオ品質のNSFW SFXを無償で提供することを目標に設立された、NSFWサウンドリソースの共同開発です。彼らは、[README - OpenNSFW SFX Pack Terms.pdf](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/blob/main/README%20-%20OpenNSFW%20SFX%20Pack%20Terms.pdf)に文書化された条件を遵守することだけを要求します（最新の条件文書は、彼らのホームページのリンクから確認できます）。
 
 つまり、OpenNSFW Sound Packの音声コンテンツを使用した作品を公開するための条件は以下の通りです：
 
