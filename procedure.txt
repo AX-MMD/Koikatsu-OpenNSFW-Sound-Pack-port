@@ -28,13 +28,12 @@ File Explorer:
 Unity:
     Make a folder for the category of sound files.
     Drop sound files in to import to unity.
+    Set attributes:
     - Decompress On Load
     - Preload Audio Data
     - Vorbis
     - Quality 100
     - Preserve Sample Rate 
-    Edit the ItemList.csv file to add the new sound items
-    Put the updated ItemList.csv in the [AX_MMD] zipmod base
     Modify `Assets/Editor/GeneratePrefabsFromWav.cs` so that `folderPath` points to the new folder
     Modify `Assets/Editor/GeneratePrefabsFromWav.cs` so that `GetItemName` can extract the number from the sound file name
     Run from the top left menu `Assets->Generate Prefabs From Wav`
@@ -43,6 +42,8 @@ Unity:
     In Top menu, Window -> AssetBundle Browser -> Build tab
     Enable `Clear Folders` and disable `Compression`
     Press `Build Asset Bundles`
+    Edit the ItemList.csv file to add the new sound items
+    Put the updated ItemList.csv in the [AX_MMD] zipmod base
     Transfert the compiled `.unity3d` from `Build/abdata/...` into the [AX_MMD] base
-    Zip the [AX_MMD] base with Bandizip using compression = 0 and filename = [AX_MMD] ... .zipmod
+    Zip the [AX_MMD] base with Bandizip (or other) using compression = 0 and filename = [AX_MMD] ... .zipmod
     
