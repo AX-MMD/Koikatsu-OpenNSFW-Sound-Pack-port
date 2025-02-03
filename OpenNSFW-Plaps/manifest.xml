@@ -2,7 +2,7 @@
 <manifest schema-ver="1">
   <guid>com.AX_MMD.OpenNSFW-Plaps</guid>
   <name>OpenNSFW-Plaps</name>
-  <version>1.2</version>
+  <version>1.3</version>
   <author>AX_MMD</author>
   <description>A port of the OpenNSFW catalog (Plaps)</description>
   <website>https://github.com/AX-MMD</website>
