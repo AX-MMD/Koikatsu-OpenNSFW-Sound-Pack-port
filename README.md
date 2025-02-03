@@ -4,7 +4,10 @@
 
 This is a port of the [OpenNSFW Sound Pack](https://opennsfw.carrd.co/) as a mod for Koikatsu Studio. The pack contains various types of NSFW sounds from various creators, so I will divide it into multiple mods.
 
-(Only contains content from `OpenNSFW/Plaps/` as of 2025-02-01, more on the way)
+As of 2025-02-03, contains:
+* partial `OpenNSFW/Plaps/`
+* partial `OpenNSFW/Oral - Mouth/Recordings`
+* `MoanPack-Rain_va_`
 
 Each sound clip has been adapted into a 3DSE Studio Item to use with Timeline. They can be accessed in Charastudio's menu `Add->Item->3D SFX` or via the search function (`opennsfw`).
 
@@ -62,7 +65,10 @@ Releases page: https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/relea
 
 これは[OpenNSFW Sound Pack](https://opennsfw.carrd.co/)をコイカツスタジオのMODとして移植したものです。このパックには様々なクリエイターの様々なタイプのNSFWサウンドが収録されているので、複数のMODに分けて紹介します。
 
-(2025-02-01現在、`OpenNSFW/Plaps/`のコンテンツのみが含まれています。）
+2025-02-03現在、以下を含む：
+* 部分 `OpenNSFW/Plaps/`.
+* パーシャル `OpenNSFW/Oral - Mouth/Recordings`
+* `MoanPack-Rain_va_` を含む。
 
 各サウンドクリップはタイムラインで使用できるように3DSE Studioアイテムに変換されています。これらはCharastudioのメニュー `Add->アイテム->3DSE`または検索機能(`opennsfw`)からアクセスできます。
 
