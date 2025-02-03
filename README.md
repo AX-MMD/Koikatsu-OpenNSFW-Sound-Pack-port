@@ -5,9 +5,9 @@
 This is a port of the [OpenNSFW Sound Pack](https://opennsfw.carrd.co/) as a mod for Koikatsu Studio. The pack contains various types of NSFW sounds from various creators, so I will divide it into multiple mods.
 
 As of 2025-02-03, contains:
-* partial `OpenNSFW/Plaps/`
-* partial `OpenNSFW/Oral - Mouth/Recordings`
-* `MoanPack-Rain_va_`
+* Partial `OpenNSFW/Plaps/`
+* Partial `OpenNSFW/Oral - Mouth/Recordings`
+* Include `MoanPack-Rain_va_`
 
 Each sound clip has been adapted into a 3DSE Studio Item to use with Timeline. They can be accessed in Charastudio's menu `Add->Item->3D SFX` or via the search function (`opennsfw`).
 
