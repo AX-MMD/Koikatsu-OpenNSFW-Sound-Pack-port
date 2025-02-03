@@ -7,7 +7,7 @@ This is a port of the [OpenNSFW Sound Pack](https://opennsfw.carrd.co/) as a mod
 As of 2025-02-03, contains:
 * Partial `OpenNSFW/Plaps/`
 * Partial `OpenNSFW/Oral - Mouth/Recordings`
-* Include `MoanPack-Rain_va_`
+* Complete `MoanPack-Rain_va_`
 
 Each sound clip has been adapted into a 3DSE Studio Item to use with Timeline. They can be accessed in Charastudio's menu `Add->Item->3D SFX` or via the search function (`opennsfw`).
 
