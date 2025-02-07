@@ -87,15 +87,14 @@ Your zipmod should look like this (NO majuscule and NO space, aside from the top
 * Select all `.prefab` objects in `Assets/Mods/Prefab`.
 * In bottom right `Asset Labels` menu, make New->studio\<mod_name>\<(optionnal)subfolders>/<compiled_assets_name> and select `unity3d`.
     
-* In Top menu, Window -> AssetBundle Browser -> Build tab
-* Enable `Clear Folders` and disable `Compression`
-* Press `Build Asset Bundles`
+* In Top menu, Window -> AssetBundle Browser -> Build tab.
+* Enable `Clear Folders` and disable `Compression`.
+* Press `Build Asset Bundles`.
     
 
-## File Explorer:
+## Zipmod:
 
 * Edit the `Item` .csv files with your new sound items.
 * Put the `Item` .csv files in your blank zipmod as deep as you can go in `/abdata/studio/info`.
-* Transfert the compiled `.unity3d` from `KoikatsuModdingTools/Build/abdata/...` into the [AX_MMD] base
-* Zip the [AX_MMD] base with Bandizip (or other) using compression = 0 and filename = [AX_MMD] ... .zipmod
-    
+* Transfert the compiled `.unity3d` from `KoikatsuModdingTools/Build/abdata/...` into your zipmod base.
+* Zip your mod into `./zipmods` using the command `./make build` or zip manually using compression = 0.
