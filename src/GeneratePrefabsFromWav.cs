@@ -21,7 +21,7 @@ public class GeneratePrefabsFromWav : MonoBehaviour
             return;
         }
 
-        string outputPath = "Assets/Mods/OpenNSFW port/Prefab"; // Replace spaces with underscores
+        string outputPath = "Assets/Mods/Prefab";
         string basePrefabPath = "Assets/3DSE objects/base_3dse.prefab";
 
         Debug.Log("Starting prefab generation...");
@@ -65,23 +65,14 @@ public class GeneratePrefabsFromWav : MonoBehaviour
         // string[] wavFiles = GetAllWavFiles(folderPath);
         string[] wavFiles = Directory.GetFiles(folderPath, "*.wav");
         string folderName = Path.GetFileName(folderPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-        string snakeCaseFolderName = ToSnakeCase(folderName);
 
         int i = 1;
 
         foreach (string wavFile in wavFiles)
         {
             string fileName = Path.GetFileNameWithoutExtension(wavFile);
-            string itemName = GetItemName(fileName);
-            string newPrefabName = "";
-            if (itemName == fileName)
-            {
-                newPrefabName = string.Format("{0}.prefab", itemName);
-            }
-            else
-            {
-                newPrefabName = string.Format("{0}{1}.prefab", snakeCaseFolderName, itemName);
-            }
+            string itemName = GetItemName(fileName, folderName);
+            string newPrefabName = string.Format("{0}.prefab", itemName);
             string newPrefabPath = Path.Combine(outputPath, newPrefabName).Replace("\\", "/");
 
             Debug.Log("Creating prefab: " + newPrefabPath);
@@ -149,18 +140,22 @@ public class GeneratePrefabsFromWav : MonoBehaviour
         return snakeCase;
     }
 
-    private static string GetItemName(string fileName)
+    private static string GetItemName(string fileName, string folderName)
     {
-		//return fileName;
-		Match match = Regex.Match(fileName, @"^([A-z\s]*-0*)(\d+)$");
+        /*
+        *  Adjust this function according to your needs
+        */
+
+		// Match match = Regex.Match(fileName, @"^([A-z\s]*-0*)(\d+)$");
 		// Match match = Regex.Match(fileName, @"^(.*)\s*-\s*(\d+)$");
-		//Match match = Regex.Match(fileName, @"^(.*)\s*\((\d+)\)$");
-		//Match match = Regex.Match(fileName, @"^(.*)\s*-\s*\((\d+)\)$");
-		//Match match = Regex.Match(fileName, @"^(.*)_(\d+)$");
-        if (match.Success)
-        {
-           return match.Groups[2].Value;
-        }
+		// Match match = Regex.Match(fileName, @"^(.*)\s*\((\d+)\)$");
+		// Match match = Regex.Match(fileName, @"^(.*)\s*-\s*\((\d+)\)$");
+		// Match match = Regex.Match(fileName, @"^(.*)_(\d+)$");
+        // string itemNamePrefix = ToSnakeCase(folderName);
+        // if (match.Success)
+        // {
+        //     return string.Format("{0}{1}", itemNamePrefix, match.Groups[2].Value)
+        // }
         return fileName;
     }
 
