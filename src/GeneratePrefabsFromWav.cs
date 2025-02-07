@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEditor;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using Studio.Sound;
@@ -12,8 +14,14 @@ public class GeneratePrefabsFromWav : MonoBehaviour
     [MenuItem("Assets/Generate Prefabs From WAV")]
     public static void GeneratePrefabs()
     {
-		string folderPath = "Assets/3DSE Sources/OpenNSFW/Lewd K. Sound/LiteRoomyPlaps"; // Replace with your folder path
-        string outputPath = "Assets/Mods/OpenNSFW port - Plaps/Prefab"; // Replace spaces with underscores
+		string folderPath = GetSelectedFolderPath();
+        if (string.IsNullOrEmpty(folderPath))
+        {
+            Debug.LogError("Please select a folder in the Assets directory.");
+            return;
+        }
+
+        string outputPath = "Assets/Mods/OpenNSFW port/Prefab"; // Replace spaces with underscores
         string basePrefabPath = "Assets/3DSE objects/base_3dse.prefab";
 
         Debug.Log("Starting prefab generation...");
@@ -47,22 +55,33 @@ public class GeneratePrefabsFromWav : MonoBehaviour
             Debug.Log("Cleared output directory: " + outputPath);
         }
 
-        Object basePrefab = AssetDatabase.LoadAssetAtPath(basePrefabPath, typeof(GameObject));
+        UnityEngine.Object basePrefab = AssetDatabase.LoadAssetAtPath(basePrefabPath, typeof(GameObject));
         if (basePrefab == null)
         {
             Debug.LogError("Base prefab not found at path: " + basePrefabPath);
             return;
         }
 
+        // string[] wavFiles = GetAllWavFiles(folderPath);
         string[] wavFiles = Directory.GetFiles(folderPath, "*.wav");
         string folderName = Path.GetFileName(folderPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
         string snakeCaseFolderName = ToSnakeCase(folderName);
+
         int i = 1;
 
         foreach (string wavFile in wavFiles)
         {
-            string itemName = GetItemName(Path.GetFileNameWithoutExtension(wavFile));
-            string newPrefabName = string.Format("{0}{1}.prefab", snakeCaseFolderName, itemName);
+            string fileName = Path.GetFileNameWithoutExtension(wavFile);
+            string itemName = GetItemName(fileName);
+            string newPrefabName = "";
+            if (itemName == fileName)
+            {
+                newPrefabName = string.Format("{0}.prefab", itemName);
+            }
+            else
+            {
+                newPrefabName = string.Format("{0}{1}.prefab", snakeCaseFolderName, itemName);
+            }
             string newPrefabPath = Path.Combine(outputPath, newPrefabName).Replace("\\", "/");
 
             Debug.Log("Creating prefab: " + newPrefabPath);
@@ -100,6 +119,27 @@ public class GeneratePrefabsFromWav : MonoBehaviour
         Debug.Log(string.Format("{0} Prefabs generated successfully.", i - 1));
     }
 
+    private static string GetSelectedFolderPath()
+    {
+        if (Selection.activeObject == null)
+        {
+            Debug.LogError("Selection is empty");
+            return null;
+        }
+
+        string path = AssetDatabase.GetAssetPath(Selection.activeObject);
+        if (string.IsNullOrEmpty(path)) return null;
+
+        if (Directory.Exists(path))
+        {
+            return path;
+        }
+        else
+        {
+            return Path.GetDirectoryName(path);
+        }
+    }
+
     private static string ToSnakeCase(string input)
     {
         if (string.IsNullOrEmpty(input)) return input;
@@ -111,13 +151,39 @@ public class GeneratePrefabsFromWav : MonoBehaviour
 
     private static string GetItemName(string fileName)
     {
-        // Use an appropriate regex pattern to extract numbers from the file names
+		//return fileName;
+		Match match = Regex.Match(fileName, @"^([A-z\s]*-0*)(\d+)$");
+		// Match match = Regex.Match(fileName, @"^(.*)\s*-\s*(\d+)$");
+		//Match match = Regex.Match(fileName, @"^(.*)\s*\((\d+)\)$");
 		//Match match = Regex.Match(fileName, @"^(.*)\s*-\s*\((\d+)\)$");
-		Match match = Regex.Match(fileName, @"^(.*)_(\d+)$");
+		//Match match = Regex.Match(fileName, @"^(.*)_(\d+)$");
         if (match.Success)
         {
-            return match.Groups[2].Value;
+           return match.Groups[2].Value;
         }
         return fileName;
+    }
+
+    static string[] GetAllWavFiles(string folderPath)
+    {
+        List<string> wavFiles = new List<string>();
+        GetWavFilesRecursive(folderPath, wavFiles);
+        return wavFiles.ToArray();
+    }
+
+    static void GetWavFilesRecursive(string folderPath, List<string> wavFiles)
+    {
+        try
+        {
+            wavFiles.AddRange(Directory.GetFiles(folderPath, "*.wav"));
+            foreach (string directory in Directory.GetDirectories(folderPath))
+            {
+                GetWavFilesRecursive(directory, wavFiles);
+            }
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Debug.LogError("Unauthorized access to folder: " + folderPath);
+        }
     }
 }

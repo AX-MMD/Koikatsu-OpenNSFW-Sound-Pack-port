@@ -1,0 +1,19 @@
+.DEFAULT_GOAL := all
+project_path = .
+
+.PHONY: build
+build:
+    @echo "Building zipmods..."
+    python $(project_path)/src/build_zipmods.py
+
+.PHONY: release
+release:
+    @if [ -z "$(version)" ]; then \
+        echo "Error: Release version not specified. Use 'make release version=x.y'"; \
+        exit 1; \
+    fi
+    @echo "Building zipmods and release zips for version $(version)..."
+    python $(project_path)/src/build_zipmods.py --release $(version)
+
+.PHONY: all
+all: build
