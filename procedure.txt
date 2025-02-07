@@ -1,13 +1,18 @@
-# Pre-setup
+# Pre-setup #############################################################################
+
+Dependencies (optionnal):
+    You'll need python 3.8+ if you need to use the python scripts.
 
 File Explorer:
-    Unzip [AX_MMD] zipmod and use it as a base
+    Unzip [AX_MMD] zipmod (or other) and use it as a base, or other method of making a blank zipmod.
 
 Unity:
-    Start with a KoikatsuModdingTools folder from github
-    Top menu, GameObject->Create Empty
-    Rename object to `base_3dse`
-    In base_3dse -> Add Component -> SE Component (Script)
+    Start with a KoikatsuModdingTools folder from github.
+    Put `src/GeneratePrefabsFromWav.cs` in `Assets/Editor`.
+    Put `src/SEComponent.cs` in `Assets/Scripts`.
+    Top menu, GameObject->Create Empty.
+    Rename object to `base_3dse`.
+    In base_3dse -> Add Component -> SE Component (Script).
     Set attributes:
     - Sound Type = Game SE3D = 4
     - Is Loop = disabled = 0
@@ -15,15 +20,14 @@ Unity:
     - Rolloff Distance Min = 5
     - Rolloff Distance Max = 9
     - Volume = 1
-    Drag and Drop `base_3dse` into `Assets/3DSE objects` (make that folder)
-    Make the folder structure `Assets/Mods/OpenNSFW port - Plaps/Prefab`
-    Make the folder structure `Assets/Mods/OpenNSFW port - Plaps/List/Studio/open_nsfw_plaps`
-    Make the necessary koikatsu item list csv files in `.../open_nsfw_plaps`
+    Drag and Drop `base_3dse` into `Assets/3DSE objects` (make that folder).
+    Make a folder where you'll import your sound files, I like `Assets/3DSE sources`.
 
-# Compilation
+# Compilation ###########################################################################
 
 File Explorer:
-    Drop sound files folder on kk_sound_file_mod.py
+    Your sound file needs at least 50ms of silence before the sound plays to prevent the risk of random sound burst in KK.
+    If it's too short or you're not sure, Drag & Drop folder with sound files on kk_sound_file_mod.py
 
 Unity:
     Make a folder for the category of sound files.
@@ -34,14 +38,21 @@ Unity:
     - Vorbis
     - Quality 100
     - Preserve Sample Rate 
-    Modify `Assets/Editor/GeneratePrefabsFromWav.cs` so that `folderPath` points to the new folder
-    Modify `Assets/Editor/GeneratePrefabsFromWav.cs` so that `GetItemName` can extract the number from the sound file name
-    Run from the top left menu `Assets->Generate Prefabs From Wav`
-    Select all `.prefab` objects in `Assets/Mods/.../Prefab`
-    In bottom right `Asset Labels` menu, make New->studio\open_nsfw\name_of_author\name_of_category/sound_name and select `unity3d`
+    
+    Modify `GetItemName` in `Assets/Editor/GeneratePrefabsFromWav.cs` so it can do one of these:
+    - By default, will return the filename as is
+    - Extract the number from the sound file name
+    - Make a custom name, whatever you want
+    IMPORTANT: Your `.prefab` file cannot have spaces or capital letters to be compatible with KK.
+    
+    In the Unity main window (NOT the directory tree on the left) Right-click folder with your audio and `Generate Prefabs From Wav`.
+    Select all `.prefab` objects in `Assets/Mods/Prefab`.
+    In bottom right `Asset Labels` menu, make New->studio\<mod_name>\<(optionnal)subfolders>/<compiled_assets_name> and select `unity3d`
+    
     In Top menu, Window -> AssetBundle Browser -> Build tab
     Enable `Clear Folders` and disable `Compression`
     Press `Build Asset Bundles`
+    
     Edit the ItemList.csv file to add the new sound items
     Put the updated ItemList.csv in the [AX_MMD] zipmod base
     Transfert the compiled `.unity3d` from `Build/abdata/...` into the [AX_MMD] base
