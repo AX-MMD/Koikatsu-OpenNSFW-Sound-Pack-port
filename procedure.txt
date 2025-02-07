@@ -20,6 +20,11 @@ Unity:
     - Rolloff Distance Min = 5
     - Rolloff Distance Max = 9
     - Volume = 1
+
+    IMPORTANT: 
+    - Is Loop = disabled for short single sounds, but enable it for longer sounds.
+    - If you only have some sounds that should loop, you can enable it individually later.
+
     Drag and Drop `base_3dse` into `Assets/3DSE objects` (make that folder).
     Make a folder where you'll import your sound files, I like `Assets/3DSE sources`.
 
@@ -46,6 +51,9 @@ Unity:
     IMPORTANT: Your `.prefab` file cannot have spaces or capital letters to be compatible with KK.
     
     In the Unity main window (NOT the directory tree on the left) Right-click folder with your audio and `Generate Prefabs From Wav`.
+    
+    IMPORTANT: If you have some `.prefabs` that needs to loop, now is the time to modify the individual objects in `Assets/Mods/Prefab`.
+    
     Select all `.prefab` objects in `Assets/Mods/Prefab`.
     In bottom right `Asset Labels` menu, make New->studio\<mod_name>\<(optionnal)subfolders>/<compiled_assets_name> and select `unity3d`
     
