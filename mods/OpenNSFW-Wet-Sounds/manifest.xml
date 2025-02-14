@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest schema-ver="1">
+  <guid>com.AX_MMD.Opennsfw-wet-sounds</guid>
+  <name>OpenNSFW-Wet-Sounds</name>
+  <version>1.0</version>
+  <author>AX_MMD</author>
+  <description>A port of the OpenNSFW catalog (Wet Sounds &amp; Slide In-Out)</description>
+  <website>https://github.com/AX-MMD/</website>
+</manifest>
