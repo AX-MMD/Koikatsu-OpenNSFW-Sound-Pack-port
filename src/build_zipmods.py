@@ -62,6 +62,14 @@ def create_release_zip(folder_path, zipmod_path, release_version, name, version)
         if os.path.exists(TERMS_FILE):
             zipf.write(TERMS_FILE, os.path.basename(TERMS_FILE))
 
+def find_abdata_path(folder_path):
+    abdata_studio_path = os.path.join(folder_path, "abdata/studio")
+    if os.path.exists(abdata_studio_path):
+        for item in os.listdir(abdata_studio_path):
+            item_path = os.path.join(abdata_studio_path, item)
+            if os.path.isdir(item_path) and item.lower() != "info":
+                return item_path
+    return None
 
 def main():
     release_version = None
@@ -73,6 +81,21 @@ def main():
         if not os.path.exists(RELEASE_DIR):
             os.makedirs(RELEASE_DIR)
 
+    # Clear the OUTPUT_DIR folder
+    if os.path.exists(OUTPUT_DIR):
+        for file in os.listdir(OUTPUT_DIR):
+            file_path = os.path.join(OUTPUT_DIR, file)
+            os.remove(file_path)
+    else:
+        os.makedirs(OUTPUT_DIR)
+
+    # clear files in the RELEASE_DIR folder
+    if not os.path.exists(RELEASE_DIR):
+        os.makedirs(RELEASE_DIR)
+    for file in os.listdir(RELEASE_DIR):
+        file_path = os.path.join(RELEASE_DIR, file)
+        os.remove(file_path)
+
     for folder_name in os.listdir(MODS_DIR):
         folder_path = os.path.join(MODS_DIR, folder_name)
         manifest_path = os.path.join(folder_path, "manifest.xml")
@@ -80,8 +103,8 @@ def main():
             name, version, author = parse_manifest(manifest_path)
             output_filename = f"[{author}] {name} v{version}.zipmod"
             output_path = os.path.join(OUTPUT_DIR, output_filename)
-            abdata_path = os.path.join(folder_path, "abdata/studio/open_nsfw")
-            if os.path.exists(abdata_path):
+            abdata_path = find_abdata_path(folder_path)
+            if abdata_path:
                 assert_unity3d_files_not_empty(abdata_path)
                 print(f"Zipping folder: {folder_path} -> {output_path}")
                 zip_folder(folder_path, output_path)
@@ -97,3 +120,4 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         traceback.print_exc()
+        input("Press Enter...")
