@@ -7,8 +7,10 @@ This is a port of the [OpenNSFW Sound Pack](https://opennsfw.carrd.co/) as a mod
 As of 2025-02-07, contains:
 * Partial `OpenNSFW/Plaps/`
 * Partial `OpenNSFW/Oral - Mouth/Recordings`
+* Complete `OpenNSFW/Wet Sounds`
 * Complete `MoanPack[F]-Rain_va_`
 * Complete `MoanPack[F]-GeminiStarSign1`
+* Complete `VoicePack[M]-Lewddmon`
 
 Each sound clip has been adapted into a 3DSE Studio Item to use with Timeline. They can be accessed in Charastudio's menu `Add->Item->3D SFX` or via the search function (`opennsfw`).
 
@@ -66,11 +68,13 @@ Releases page: https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/relea
 
 これは[OpenNSFW Sound Pack](https://opennsfw.carrd.co/)をコイカツスタジオのMODとして移植したものです。このパックには様々なクリエイターの様々なタイプのNSFWサウンドが収録されているので、複数のMODに分けて紹介します。
 
-2025-02-03現在、以下を含む：
-* 部分 `OpenNSFW/Plaps` (衝撃音)。
-* パーシャル `OpenNSFW/Oral - Mouth/Recordings` (オーラル)。
-* `MoanPack[F]-Rain_va_` を含む (モーンパック)。
-* `MoanPack[F]-GeminiStarSign1` を含む。
+2025-02-15現在、以下を含む：
+* パーシャル `OpenNSFW/Plaps` (衝撃音)。
+* パーシャル `OpenNSFW/Oral - Mouth/Recordings` (口腔音)。
+* を含む `OpenNSFW/Wet Sounds` (湿った音)
+* を含む `MoanPack[F]-Rain_va_` (呻き声)。
+* を含む `MoanPack[F]-GeminiStarSign1` (呻き声)。
+* を含む `VoicePack[M]-Lewddmon` (男 ボイスパック)。
 
 各サウンドクリップはタイムラインで使用できるように3DSE Studioアイテムに変換されています。これらはCharastudioのメニュー `Add->アイテム->3DSE`または検索機能(`opennsfw`)からアクセスできます。
 
