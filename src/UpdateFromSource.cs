@@ -1,5 +1,9 @@
 using UnityEngine;
 using UnityEditor;
+using System.Collections.Generic;
+using System;
+using KK3DSEModManager;
+using Models;
 
 public class UpdateFromSource : MonoBehaviour
 {
@@ -7,11 +11,15 @@ public class UpdateFromSource : MonoBehaviour
     public static void RegenAll()
     {
         Debug.Log("Update From Source started...");
-        // Execute GeneratePrefabsFromWav
-        GeneratePrefabsFromSource.GeneratePrefabs();
+        
+        string selectedPath;
+        bool isSidePanel;
+        Utils.GetSelectedFolderPath(out selectedPath, out isSidePanel);
 
-        // Execute GenerateItemListFromPrefabs
-        GenerateItemListFromPrefabs.GenerateCSV();
+        KK3DSEModManager modManager = new KK3DSEModManager(selectedPath);
+        List<Category> categories = modManager.getCategories();
+        modManager.generatePrefabs(false, isSidePanel, categories);
+        modManager.generateCSV(false, isSidePanel, categories);
 
         Debug.Log("Update From Source completed successfully.");
     }

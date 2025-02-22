@@ -13,7 +13,7 @@ public static class Utils
     {
         if (Selection.assetGUIDs.Length > 0)
         {
-            selectedPath = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]);
+            selectedPath = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[Selection.assetGUIDs.Length - 1]);
             isSidePanel = true;
         }
         else if (Selection.activeObject != null)
@@ -23,19 +23,26 @@ public static class Utils
         }
         else
         {
-            throw new Exception("Please select a folder in the Assets directory.");
+            throw new Exception("Please select a folder in the Assets/Mods directory.");
         }
 
-        if (string.IsNullOrEmpty(selectedPath) || !Directory.Exists(selectedPath))
+        if (string.IsNullOrEmpty(selectedPath))
         {
-            throw new Exception("Please select a folder in the Assets directory.");
+            throw new Exception("Selection cannot be empty");
         }
 
-        string parentFolder = Path.GetFileName(Path.GetDirectoryName(selectedPath));
-        if (isSidePanel && parentFolder != "Mods")
+        if (isSidePanel)
         {
-            Debug.LogError("Selection parent folder is '" + parentFolder + "' while it should be 'Mods'");
-            throw new Exception("Invalid side panel folder '" + selectedPath + "', select Mods/<your_mod_name> or an individual file/folder in Sources");
+            string parentFolder = Path.GetFileName(Path.GetDirectoryName(selectedPath));
+            if (!Directory.Exists(selectedPath) || parentFolder != "Mods")
+            {
+                Debug.LogError("Selection parent folder is '" + parentFolder + "' while it should be 'Mods'");
+                throw new Exception("Invalid side panel folder '" + selectedPath + "', select Mods/<your_mod_name> or an individual file/folder in Sources");
+            }
+        }
+        else if (!File.Exists(selectedPath) && !Directory.Exists(selectedPath))
+        {
+            throw new Exception("Selection does not exist: " + selectedPath);
         }
     }
 
@@ -64,31 +71,9 @@ public static class Utils
         return snakeCase;
     }
 
-    public static string ToPascalCase(string input)
-    {
-        if (string.IsNullOrEmpty(input)) return input;
-
-        string[] words = Regex.Split(input, @"[\s_]+");
-        StringBuilder pascalCase = new StringBuilder();
-
-        foreach (string word in words)
-        {
-            if (word.Length > 0)
-            {
-                pascalCase.Append(char.ToUpper(word[0]));
-                if (word.Length > 1)
-                {
-                    pascalCase.Append(word.Substring(1).ToLower());
-                }
-            }
-        }
-
-        return pascalCase.ToString();
-    }
-
     public static string GetModName(string selectedPath)
     {
-        string studioPath = Path.Combine(selectedPath, "List/Studio");
+        string studioPath = Path.Combine(GetModPath(selectedPath), "List/Studio");
         string[] directories = Directory.GetDirectories(studioPath);
         if (directories.Length == 0)
         {
@@ -96,6 +81,23 @@ public static class Utils
         }
 
         return Path.GetFileName(directories[0]);
+    }
+
+    public static string GetModCsvPath(string modPath, string modName)
+    {
+        string[] listsPath = Directory.GetDirectories(Path.Combine(modPath, "List/Studio"));
+        if (listsPath.Length == 0)
+        {
+            throw new Exception("Missing List/Studio/<mod_folder> folder in mod directory: " + modPath);
+        }
+        else if (listsPath.Length > 1)
+        {
+            throw new Exception("Multiple List/Studio folders found in mod directory: " + modPath);
+        }
+        else
+        {
+            return listsPath[0];
+        }
     }
 
     public static string GetRelativePath(string basePath, string fullPath)
