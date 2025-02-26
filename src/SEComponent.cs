@@ -60,5 +60,13 @@ namespace ActionGame.MapSound
 		public float min;
 
 		public float max;
+
+		public Threshold(float minValue, float maxValue)
+        {
+            this.min = minValue;
+            this.max = maxValue;
+        }
 	}
+
+
 }

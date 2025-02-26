@@ -2,8 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System;
-using KK3DSEModManager;
-using Models;
+using IllusionMods.Koikatsu3DSEModTools;
 
 public class UpdateFromSource : MonoBehaviour
 {
