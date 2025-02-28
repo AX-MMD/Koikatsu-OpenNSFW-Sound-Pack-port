@@ -25,8 +25,8 @@ public class GenerateItemListFromPrefabs : MonoBehaviour
         Debug.Log("Select path: " + selectedPath);
 
         KK3DSEModManager modManager = new KK3DSEModManager(selectedPath, true);
-        List<Category> categories = modManager.getCategories();
-        modManager.generateCSV(true, isSidePanel, categories);
+        List<Category> categories = modManager.GetCategories();
+        modManager.GenerateCSV(true, isSidePanel, categories);
 
         Debug.Log("Generate ItemList completed for: " + selectedPath);
     }

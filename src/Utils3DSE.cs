@@ -63,7 +63,6 @@ public static class Utils
 
 	public class ManifestInfo
 	{
-		public string filePath;
 		public string guid;
 		public string author;
 		public string name;
@@ -81,9 +80,6 @@ public static class Utils
 			} else {
 				xmlDoc.Load(manifestPath);
 			}
-
-			this.filePath = manifestPath;
-
 			XmlNode guidNode = xmlDoc.SelectSingleNode("//guid");
 			if (guidNode == null) {
 				xmlDoc.CreateElement("guid");
@@ -91,7 +87,6 @@ public static class Utils
 			} else {
 				this.guid = guidNode.InnerText;
 			}
-
 			XmlNode authorNode = xmlDoc.SelectSingleNode("//author");
 			if (authorNode == null) {
 				xmlDoc.CreateElement("author");
@@ -99,7 +94,6 @@ public static class Utils
 			} else {
 				this.author = authorNode.InnerText;
 			}
-
 			XmlNode nameNode = xmlDoc.SelectSingleNode("//name");
 			if (nameNode == null) {
 				xmlDoc.CreateElement("name");
@@ -107,7 +101,6 @@ public static class Utils
 			} else {
 				this.name = nameNode.InnerText;
 			}
-
 			XmlNode muidNode = xmlDoc.SelectSingleNode("//muid");
 			if (muidNode == null) {
 				xmlDoc.CreateElement("muid");
@@ -115,7 +108,6 @@ public static class Utils
 			} else {
 				this.muid = muidNode.InnerText;
 			}
-
 			XmlNode versionNode = xmlDoc.SelectSingleNode("//version");
 			if (versionNode == null) {
 				xmlDoc.CreateElement("version");
@@ -123,7 +115,6 @@ public static class Utils
 			} else {
 				this.version = versionNode.InnerText;
 			}
-
 			XmlNode descriptionNode = xmlDoc.SelectSingleNode("//description");
 			if (descriptionNode == null) {
 				xmlDoc.CreateElement("description");
@@ -131,7 +122,6 @@ public static class Utils
 			} else {
 				this.description = descriptionNode.InnerText;
 			}
-
 			XmlNode websiteNode = xmlDoc.SelectSingleNode("//website");
 			if (websiteNode == null) {
 				xmlDoc.CreateElement("website");
@@ -241,11 +231,6 @@ public static class Utils
 			return errors;
 		}
 
-		public void save()
-		{
-			this.save(this.filePath);
-		}
-
 		public void save(string manifestPath)
 		{
 			if (string.IsNullOrEmpty(manifestPath))
@@ -290,7 +275,7 @@ public static class Utils
 
 	}
 
-	public static void GetSelectedFolderPath(out string selectedPath, out bool isSidePanel)
+	public static void GetSelectedFolderPath(out string[] selectedPaths, out bool isSidePanel)
 	{
 		if (Selection.assetGUIDs.Length > 0)
 		{
@@ -327,16 +312,26 @@ public static class Utils
 		}
 	}
 
-	public static string ToValidKoiFileName(string input)
+	public static string ToZipmodFileName(string input)
 	{
 		return Zipmod.ReplaceInvalidChars(input.ToLower().Replace(".", "_").Replace(" ", "_"));
 	}
+
+	public static T GetLastValue<T>(IEnumerable<T> collection)
+		{
+			T last = default(T);
+			foreach (T item in collection)
+			{
+				last = item;
+			}
+			return last;
+		}
 
 	public static string ToPascalCase(string input)
 	{
 		if (string.IsNullOrEmpty(input)) return input;
 
-		string[] words = Regex.Split(ToValidKoiFileName(input).Replace("-", "_"), @"[\s_]+");
+		string[] words = Regex.Split(input.Replace("-", "_"), @"[\s_]+");
 		StringBuilder pascalCase = new StringBuilder();
 
 		foreach (string word in words)
@@ -359,29 +354,23 @@ public static class Utils
 		if (string.IsNullOrEmpty(input)) return input;
 
 		string snakeCase = Regex.Replace(input, "([a-z])([A-Z])", "$1_$2").ToLower().Replace("-", "_");
-		return Regex.Replace(ToValidKoiFileName(snakeCase), @"_+", "_");
+		return Regex.Replace(ToZipmodFileName(snakeCase), @"_+", "_");
 	}
 
-	public static string GetCsvFolder(string modPath)
+	public static string GetItemDataFolder(string modPath)
 	{
-		string[] listsPath = Directory.GetDirectories(Path.Combine(modPath, "List/Studio"));
-		if (listsPath.Length == 0)
+		string path = Path.Combine(modPath, "List/Studio/DataFiles");
+		if (!Directory.Exists(path))
 		{
-			throw new Exception("Missing List/Studio/<mod_folder> folder in mod directory: " + modPath);
+			throw new Exception("Missing List/Studio/DataFiles folder in mod directory: " + modPath);
 		}
-		else if (listsPath.Length > 1)
-		{
-			throw new Exception("Multiple folders found in List/Studio of mod directory: " + modPath);
-		}
-		else
-		{
-			return listsPath[0];
-		}
+		
+		return path;
 	}
 
 	public static Tuple<string> GetCsvItemFilePaths(string modPath)
 	{
-		string csvFolder = GetCsvFolder(modPath);
+		string csvFolder = GetItemDataFolder(modPath);
 		string[] listFiles = Directory.GetFiles(csvFolder, "ItemList_00*.csv");
 		string[] categoryFiles = Directory.GetFiles(csvFolder, "ItemCategory_00*.csv");
 		return Tuple<string>.Create(
@@ -408,36 +397,19 @@ public static class Utils
 		File.WriteAllLines(filePath, lines.ToArray(), System.Text.Encoding.UTF8);
 	}
 
-	public static List<string> GetEmptyItemGroupCsv()
+	public static List<string> GetItemGroupHeaders()
 	{
 		return new List<string>(new string[] { "Group Number,Name" });
 	}
 
-	public static List<string> GetEmptyItemCategoryCsv()
+	public static List<string> GetItemCategoryHeaders()
 	{
 		return new List<string>(new string[] { "Category Number,Name" });
 	}
 
-	public static List<string> GetEmptyItemListCsv()
+	public static List<string> GetItemListHeaders()
 	{
 		return new List<string> (new string[] {"ID,Group Number,Category Number,Name,Manifest,Bundle Path,File Name,Child Attachment Transform,Animation,Color 1,Pattern 1,Color 2,Pattern 2,Color 3,Pattern 3,Scaling,Emission"});
-	}
-
-	public static string GetModCsvPath(string modPath, string modName)
-	{
-		string[] listsPath = Directory.GetDirectories(Path.Combine(modPath, "List/Studio"));
-		if (listsPath.Length == 0)
-		{
-			throw new Exception("Missing List/Studio/<mod_folder> folder in mod directory: " + modPath);
-		}
-		else if (listsPath.Length > 1)
-		{
-			throw new Exception("Multiple List/Studio folders found in mod directory: " + modPath);
-		}
-		else
-		{
-			return listsPath[0];
-		}
 	}
 
 	public static string GetModUID(string modPath)

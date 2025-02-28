@@ -18,10 +18,10 @@ public class GenerateFromSource : MonoBehaviour
 		Debug.Log("Select path: " + selectedPath);
 
 		KK3DSEModManager modManager = new KK3DSEModManager(selectedPath, true);
-		List<Category> categories = modManager.getCategories();
+		List<Category> categories = modManager.GetCategories();
 		Debug.Log("Categories: " + categories.Count);
-		modManager.generateCSV(true, isSidePanel, categories);
-		modManager.generatePrefabs (true, isSidePanel, categories);
+		modManager.GenerateCSV(true, isSidePanel, categories);
+		modManager.GeneratePrefabs (true, isSidePanel, categories);
 
 		Debug.Log("Generate From Source completed for: " + selectedPath);
 	}

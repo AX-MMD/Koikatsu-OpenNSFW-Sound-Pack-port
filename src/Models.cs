@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ActionGame.MapSound;
+using System;
 
 namespace IllusionMods.Koikatsu3DSEModTools {
 
@@ -30,7 +31,7 @@ public class Category
             this.files = new List<SoundFile>();
         }
 
-        public string getKey()
+        public string GetKey()
         {
             if (this.author == "")
             {
@@ -53,20 +54,35 @@ public class Category
         }
     }
 
+public class PrefabModifier
+{
+    public bool isLoop { get; set; }
+    public Utils.Tuple<float> threshold { get; set; }
+    public float volume { get; set; }
+
+    public PrefabModifier(bool isLoop = false, Utils.Tuple<float> threshold = null, float volume = -1.0f)
+    {
+        this.isLoop = isLoop;
+        this.threshold = threshold;
+        this.volume = volume;
+    }
+}
+
 public class SoundFile
 {
-    public string prefabName { 
-        get
-        {
-            return Utils.ToSnakeCase(_itemName);
-        }
-    }
     private string _itemName;
     public string itemName
     {
         get
         {
-            return this.isLoop ? _itemName : "(S)" + _itemName;
+            if (this.prefabModifier != null && this.prefabModifier.isLoop)
+            {
+                return _itemName;
+            }
+            else
+            {
+                return "(S)" + _itemName;
+            }
         }
         set
         {
@@ -74,15 +90,19 @@ public class SoundFile
         }
     }
     public string path { get; set; }
-    public bool isLoop { get; set; }
-    public Utils.Tuple<float> threshold { get; set; }
+    public PrefabModifier prefabModifier { get; set; }
+    public string prefabName { 
+        get
+        {
+            return Utils.ToSnakeCase(_itemName);
+        }
+    }
 
-    public SoundFile(string itemName, string path = null, bool isLoop = false, Utils.Tuple<float> threshold = null)
+    public SoundFile(string itemName, string path = null, PrefabModifier prefabModifier = null)
     {
         this.itemName = itemName;
         this.path = path;
-        this.isLoop = isLoop;
-        this.threshold = threshold;
+        this.prefabModifier = prefabModifier;
     }
 }
 

@@ -27,8 +27,8 @@ public class GeneratePrefabsFromSource : MonoBehaviour
         Debug.Log("Select path: " + selectedPath);
 
         KK3DSEModManager modManager = new KK3DSEModManager(selectedPath, true);
-        List<Category> categories = modManager.getCategories();
-        modManager.generatePrefabs(true, isSidePanel, categories);
+        List<Category> categories = modManager.GetCategories();
+        modManager.GeneratePrefabs(true, isSidePanel, categories);
 
         Debug.Log("Generate Prefabs completed for: " + selectedPath);
     }

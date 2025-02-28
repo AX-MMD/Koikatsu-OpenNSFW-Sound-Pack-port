@@ -46,16 +46,6 @@ public class New3DSEMod : MonoBehaviour
 		}
 	}
 
-	public static void RenameDirectory(string sourceDir, string destDir)
-	{
-		if (Directory.Exists(destDir))
-		{
-			Directory.Delete(destDir, true);
-		}
-
-		Directory.Move(sourceDir, destDir);
-	}
-
 }
 
 public class New3DSEModWindow : EditorWindow
@@ -111,88 +101,63 @@ public class New3DSEModWindow : EditorWindow
 			try
 			{
                 fields["guid"] = Utils.MakeModGuid(fields["author"], fields["name"]);
-				Utils.ManifestInfo manifestInfo = new Utils.ManifestInfo(fields);
-				List<string> errors = manifestInfo.validate();
+				Utils.ManifestInfo manifest = new Utils.ManifestInfo(fields);
+				List<string> errors = manifest.validate();
 
 				if (errors.Count > 0)
 				{
 					throw new Exception(string.Join("\n", errors.ToArray()));
 				}
 
-                string directoryGuid = Utils.ToValidKoiFileName(fields["guid"].Replace("com.", ""));
-				newDestinationPath = Path.Combine(destinationPath, fields["name"]);
-				string newListPath = Path.Combine(newDestinationPath, "List/Studio/" + directoryGuid);
-
+				newDestinationPath = Path.Combine(destinationPath, manifest.name);
 				if (sourcePath == newDestinationPath)
 				{
 					throw new Exception("Source and destination path must be different.");
 				}
 
 				New3DSEMod.CopyDirectory(sourcePath, newDestinationPath);
-				New3DSEMod.RenameDirectory(Path.Combine(newDestinationPath, "List/Studio/studio_3dse_example"), newListPath);
+				manifest.save(Path.Combine(newDestinationPath, "manifest.xml"));
 
-				manifestInfo.edit(fields);
-				manifestInfo.save(Path.Combine(newDestinationPath, "manifest.xml"));
-
-				// Rename the ItemGroup CSV file
-				string oldCsvPath = Path.Combine(newListPath, "ItemGroup_studio_3dse_example.csv");
-				string newCsvPath = Path.Combine(newListPath, "ItemGroup_" + directoryGuid + ".csv");
-				if (File.Exists(oldCsvPath))
+				string listPath = Path.Combine(newDestinationPath, Utils.GetItemDataFolder());
+				List<string> csvLines = Utils.GetItemGroupHeaders();
+				if (fields["itemGroupName"] == "3DSE")
 				{
-					File.Move(oldCsvPath, newCsvPath);
-					List<string> csvLines = Utils.GetEmptyItemGroupCsv();
-					if (fields["itemGroupName"] == "3DSE")
-					{
-						csvLines.Add("11,3DSE" );
-					}
-					else
-					{
-						csvLines.Add(fields["muid"] + "," + fields["itemGroupName"]);
-					}
-					Utils.WriteToCsv(newCsvPath, csvLines);
+					csvLines.Add("11,3DSE" );
 				}
 				else
 				{
-					throw new Exception("CSV file not found: " + oldCsvPath);
+					csvLines.Add(manifest.muid + "," + fields["itemGroupName"]);
 				}
+				Utils.WriteToCsv(Path.Combine(listPath, "ItemGroup_DataFiles.csv"), csvLines);
 
 				// Rename the ItemCategory CSV file
 				if (fields["itemGroupName"] != "3DSE")
 				{
-					oldCsvPath = Path.Combine(newListPath, "ItemCategory_00_11.csv");
-					newCsvPath = Path.Combine(newListPath, "ItemCategory_00_" + fields["muid"] + ".csv");
-					if (File.Exists(oldCsvPath))
-					{
-						File.Move(oldCsvPath, newCsvPath);
-					}
-					else
-					{
-						throw new Exception("CSV file not found: " + oldCsvPath);
-					}
+					File.Move(
+						Path.Combine(listPath, "ItemCategory_00_11.csv"), 
+						Path.Combine(listPath, "ItemCategory_00_" + manifest.muid + ".csv")
+					);
 				}
 
 				// Rename the ItemList CSV file
-				oldCsvPath = Path.Combine(newListPath, "ItemList_00_11_YYY.csv");
+				string oldCsvPath = Path.Combine(listPath, "ItemList_00_11_YYY.csv");
 				if (fields["itemGroupName"] == "3DSE")
 				{
-					newCsvPath = Path.Combine(newListPath, "ItemList_00_11_" + fields["muid"] + "01" + ".csv");
+					File.Move(
+						oldCsvPath, 
+						Path.Combine(listPath, "ItemList_00_11_" + manifest.muid + "01" + ".csv")
+					);
 				}
 				else
 				{
-					newCsvPath = Path.Combine(newListPath, "ItemList_00_" + fields["muid"] + "_01.csv");
-				}
-
-				if (File.Exists(oldCsvPath))
-				{
-					File.Move(oldCsvPath, newCsvPath);
-				}
-				else
-				{
-					throw new Exception("CSV file not found: " + oldCsvPath);
+					File.Move(
+						oldCsvPath, 
+						Path.Combine(listPath, "ItemList_00_" + manifest.muid + "_YYY.csv")
+					);
 				}
 
 				AssetDatabase.Refresh();
-				Debug.Log("New 3DSE mod folder created successfully.");
+				Debug.Log("New 3DSE mod folder '" + manifest.name + "' created successfully.");
 				this.Close();
 			}
             catch (Exception e)

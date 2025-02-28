@@ -16,9 +16,9 @@ public class UpdateFromSource : MonoBehaviour
         Utils.GetSelectedFolderPath(out selectedPath, out isSidePanel);
 
         KK3DSEModManager modManager = new KK3DSEModManager(selectedPath);
-        List<Category> categories = modManager.getCategories();
-        modManager.generatePrefabs(false, isSidePanel, categories);
-        modManager.generateCSV(false, isSidePanel, categories);
+        List<Category> categories = modManager.GetCategories();
+        modManager.GeneratePrefabs(false, isSidePanel, categories);
+        modManager.GenerateCSV(false, isSidePanel, categories);
 
         Debug.Log("Update From Source completed successfully.");
     }

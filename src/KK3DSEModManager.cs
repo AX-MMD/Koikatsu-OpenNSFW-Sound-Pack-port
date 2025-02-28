@@ -48,60 +48,7 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			}
 		}
 
-		public List<Category> getCategories()
-		{
-			List<Category> categories = new List<Category>();
-			string[] rootFolders = Directory.GetDirectories(this.sourcesPath);
-			if (rootFolders.Length == 0)
-			{
-				categories.Add(new Category("Default", "", this.getCategoryFiles(this.sourcesPath, new List<string>(new string[] { "keep-name" }))));
-			}
-			else
-			{
-				foreach (string rootFolder in rootFolders)
-				{
-					string rootFolderName = Path.GetFileName(rootFolder);
-					if (rootFolderName.StartsWith("[") && rootFolderName.EndsWith("]") && Directory.GetDirectories(rootFolder).Length > 0)
-					{
-						categories.Add(new Category(rootFolderName));
-						foreach (string subfolder in Directory.GetDirectories(rootFolder))
-						{
-							categories.AddRange(this.recursiveGetCategories(subfolder, new List<string>()));
-						}
-					}
-					else
-					{
-						categories.AddRange(this.recursiveGetCategories(rootFolder, new List<string>()));
-					}
-				}
-			}
-			return categories;
-		}
-
-		public List<string> getCategoriesFromItemList()
-		{
-			Utils.Tuple<string> paths = Utils.GetCsvItemFilePaths(this.modPath);
-			string itemListPath = paths.Item2;
-
-			if (!File.Exists(itemListPath))
-			{
-				throw new Exception("CSV file not found at path: " + itemListPath);
-			}
-
-			List<string> categories = new List<string>();
-			string[] lines = File.ReadAllLines(itemListPath);
-			foreach (string line in lines)
-			{
-				string[] columns = line.Split(',');
-				if (columns.Length > 2)
-				{
-					categories.Add(columns[2].Trim());
-				}
-			}
-			return categories;
-		}
-
-		public void generateCSV(bool create, bool isSidePanel, List<Category> categories)
+		public void GenerateCSV(bool create, bool isSidePanel, List<Category> categories)
 		{
 			Utils.Tuple<string> paths = Utils.GetCsvItemFilePaths(this.modPath);
 			string categoryPath = paths.Item1;
@@ -116,50 +63,40 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			}
 
 			Dictionary<string, string[]> existingCategories = new Dictionary<string, string[]>();
-			List<string> categoryLines;
-			if (create && isSidePanel)
+			if (!(create && isSidePanel))
 			{
-				categoryLines = Utils.GetEmptyItemCategoryCsv();
-			}
-			else
-			{
-				categoryLines = new List<string>();
-				string[] lines = File.ReadAllLines(categoryPath);
+				List<string> lines = new List<string>(File.ReadAllLines(categoryPath));
+				if (lines.Count > 0)
+				{
+					lines.RemoveAt(0);
+				}
 				foreach (string line in lines)
 				{
-					categoryLines.Add(line);
 					string[] columns = line.Split(',');
-					if (columns.Length > 1)
-					{
-						existingCategories[columns[1].Trim()] = columns;
-					}
+					existingCategories[columns[1].Trim()] = columns;
 				}
 			}
 
 			Dictionary<string, string[]> existingEntries = new Dictionary<string, string[]>();
-			List<string> itemListLines;
-			if (create && isSidePanel)
+			if (!(create && isSidePanel))
 			{
-				itemListLines = Utils.GetEmptyItemListCsv();
-			}
-			else
-			{
-				itemListLines = new List<string> ();
-				string[] lines = File.ReadAllLines(itemListPath);
+				List<string> lines = new List<string>(File.ReadAllLines(itemListPath));
+				if (lines.Count > 0)
+				{
+					lines.RemoveAt(0);
+				}
 				foreach (string line in lines)
 				{
 					string[] columns = line.Split(',');
-					if (columns.Length > 6)
-					{
-						existingEntries[columns[6].Trim()] = columns;
-					}
+					// The key is the prefab name + category number
+					existingEntries[columns[6].Trim() + columns[2].Trim()] = columns;
 				}
 			}
 
 			int id = 1;
 			if (!(create && isSidePanel) && existingEntries.Count > 0)
 			{
-				id = int.Parse(this.getLastValue(existingEntries.Values)[0]) + 1;
+				id = int.Parse(Utils.GetLastValue(existingEntries.Values)[0]) + 1;
 			}
 
 			Utils.Tuple<string> info = Utils.GetCsvModInfo(itemListPath);
@@ -168,15 +105,16 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 
 			if (!(create && isSidePanel) && existingCategories.Count > 0)
 			{
-				categoryNumber = this.getLastValue(existingCategories.Values)[0];
+				categoryNumber = Utils.GetLastValue(existingCategories.Values)[0];
 			}
 
 			categories.Sort((x, y) => string.Compare(x.author, y.author));
 
 			foreach (Category category in categories)
 			{
-				string categoryKey = category.getKey();
+				string categoryKey = category.GetKey();
 				string currentCategoryNumber = categoryNumber;
+				string bundlePath = this.GetAssetBundlePath(categoryKey);
 				if (existingCategories.ContainsKey(categoryKey))
 				{
 					currentCategoryNumber = existingCategories[categoryKey][0];
@@ -184,46 +122,53 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 				else
 				{
 					existingCategories[categoryKey] = new string[] { currentCategoryNumber, categoryKey };
-					categoryLines.Add(string.Join(",", existingCategories[categoryKey]));
 					categoryNumber = (int.Parse(categoryNumber) + 1).ToString(new string('0', categoryNumber.Length));
 				}
 
 				foreach (SoundFile file in category.files)
 				{
-					string bundlePath = this.getAssetBundlePath();
-					string itemName = file.itemName;
-					if (create && isSidePanel || !existingEntries.ContainsKey(file.prefabName))
+					string itemKey = file.prefabName + currentCategoryNumber;
+					if (existingEntries.ContainsKey(itemKey))
 					{
-						// Add new entry
-						string[] newEntry = new string[] { id.ToString(), groupNumber, currentCategoryNumber, itemName, "", bundlePath, file.prefabName, "", "FALSE", "FALSE", "FALSE", "FALSE", "FALSE", "FALSE", "FALSE", "FALSE", "FALSE" };
-						if (existingEntries.ContainsKey(file.prefabName) && existingEntries[file.prefabName][2] == currentCategoryNumber)
+						if (create && isSidePanel)
 						{
-							throw new Exception("Duplicate entry '"+ file.prefabName +"' for category '"+ categoryKey +"' with item name '"+ itemName +"'.");
+							throw new Exception("Duplicate entry '"+ file.prefabName +"' for category '"+ categoryKey +"' with item name '"+ file.itemName +"'.");
 						}
-						existingEntries[file.prefabName] = newEntry;
-						itemListLines.Add(string.Join(",", newEntry));
-						id++;
+						// Update existing entry
+						string[] existingEntry = existingEntries[itemKey];
+						existingEntry[1] = groupNumber;
+						existingEntry[2] = currentCategoryNumber;
+						existingEntry[3] = file.itemName;
+						existingEntry[5] = bundlePath;
+						existingEntry[6] = file.prefabName;
 					}
 					else
 					{
-						// Update existing entry
-						string[] existingEntry = existingEntries[file.prefabName];
-						existingEntry[1] = groupNumber;
-						existingEntry[2] = currentCategoryNumber;
-						existingEntry[3] = itemName;
-						existingEntry[5] = bundlePath;
-						existingEntry[6] = file.prefabName;
-						itemListLines.Add(string.Join(",", existingEntry));
+						// Add new entry
+						string[] newEntry = new string[] { id.ToString(), groupNumber, currentCategoryNumber, file.itemName, "", bundlePath, file.prefabName, "", "FALSE", "FALSE", "FALSE", "FALSE", "FALSE", "FALSE", "FALSE", "FALSE", "FALSE" };
+						existingEntries[itemKey] = newEntry;
+						id++;
 					}
 				}
 			}
+			List<string> categoryLines = new List<string>(Utils.GetItemCategoryHeaders());
+			foreach (string[] columns in existingCategories.Values)
+			{
+				categoryLines.Add(string.Join(",", columns));
+			}
+			List<string> itemListLines = new List<string>(Utils.GetItemListHeaders());
+			foreach (string[] columns in existingEntries.Values)
+			{
+				itemListLines.Add(string.Join(",", columns));
+			}
+
 
 			Utils.WriteToCsv(categoryPath, categoryLines);
 			Utils.WriteToCsv(itemListPath, itemListLines);
 			Debug.Log("CSV files generated successfully.");
 		}
 
-		public void generatePrefabs(bool create, bool isSidePanel, List<Category> categories)
+		public void GeneratePrefabs(bool create, bool isSidePanel, List<Category> categories)
 		{
 			Debug.Log("Generate Prefabs From Source started...");
 			Debug.Log("Source path: " + this.sourcesPath);
@@ -254,7 +199,9 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			foreach (Category category in categories)
 			{
 				int prefabCount = 0;
-				string categoryOutputPath = Path.Combine(this.prefabOutputPath, category.getKey()).Replace("\\", "/");
+				string categoryOutputPath = Path.Combine(this.prefabOutputPath, category.GetKey()).Replace("\\", "/");
+				string assetBundlePath = this.GetAssetBundlePath(category.GetKey());
+
 				if (!Directory.Exists(categoryOutputPath))
 				{
 					Directory.CreateDirectory(categoryOutputPath);
@@ -303,13 +250,17 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 					if (seComponent != null)
 					{
 						seComponent._clip = audioClip;
-						if (file.isLoop)
+						if (file.prefabModifier.isLoop)
 						{
 							seComponent._isLoop = true;
 						}
-						if (file.threshold != null)
+						if (file.prefabModifier.threshold != null)
 						{
-							seComponent._rolloffDistance = new Threshold(file.threshold.Item1, file.threshold.Item2);
+							seComponent._rolloffDistance = new Threshold(file.prefabModifier.threshold.Item1, file.prefabModifier.threshold.Item2);
+						}
+						if (file.prefabModifier.volume != -1.0f)
+						{
+							seComponent._volume = file.prefabModifier.volume;
 						}
 					}
 					else
@@ -324,7 +275,7 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 					string metaFilePath = newPrefabPath + ".meta";
 					if (File.Exists(metaFilePath))
 					{
-						Utils.SetAssetBundleNameInMetaFile(metaFilePath, this.getAssetBundlePath());
+						Utils.SetAssetBundleNameInMetaFile(metaFilePath, assetBundlePath);
 					}
 					else
 					{
@@ -333,7 +284,7 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 
 					prefabCount++;
 				}
-				Debug.Log(string.Format("{0} Prefabs generated successfully for Category '{1}'", prefabCount, category.getKey()));
+				Debug.Log(string.Format("{0} Prefabs generated successfully for Category '{1}'", prefabCount, category.GetKey()));
 				prefabTotalCount += prefabCount;
 				prefabCount = 0;
 			}
@@ -341,21 +292,142 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			Debug.Log(string.Format("Generate {0} Prefabs from Sources for {1} Categories.", prefabTotalCount, categories.Count));
 		}
 
-		private T getLastValue<T>(IEnumerable<T> collection)
+		public List<Category> GetCategories()
 		{
-			T last = default(T);
-			foreach (T item in collection)
+			List<Category> categories = new List<Category>();
+			string[] rootFolders = Directory.GetDirectories(this.sourcesPath);
+			if (rootFolders.Length == 0)
 			{
-				last = item;
+				categories.Add(new Category("Default", "", this.GetCategoryFiles(this.sourcesPath, new List<string>(new string[] { "keep-name" }))));
 			}
-			return last;
+			else
+			{
+				foreach (string rootFolder in rootFolders)
+				{
+					string rootFolderName = Path.GetFileName(rootFolder);
+					if (rootFolderName.StartsWith("[") && rootFolderName.EndsWith("]") && Directory.GetDirectories(rootFolder).Length > 0)
+					{
+						categories.Add(new Category(rootFolderName));
+						foreach (string subfolder in Directory.GetDirectories(rootFolder))
+						{
+							categories.AddRange(this.GetCategoriesRecursive(subfolder, new List<string>()));
+						}
+					}
+					else
+					{
+						categories.AddRange(this.GetCategoriesRecursive(rootFolder, new List<string>()));
+					}
+				}
+			}
+			return categories;
 		}
 
-		private string toItemCase(string input)
+		private List<Category> GetCategoriesRecursive(string folder, List<string> cumulTags)
+		{
+			string folderName = Path.GetFileName(folder);
+			Match match = Regex.Match(folderName, @"^(?<categoryName>[^()]+)(\((?<author>[^)]+)\))?$");
+			string categoryName = this.useLegacyClassifier ? match.Groups["categoryName"].Value.Trim() : folderName;
+			string author = match.Groups["author"].Value.Trim();
+			
+			TagManager.ConvertTagsToNewVersion(folder); //TODO: remove this
+			List<string> tags = TagManager.CombineTags(cumulTags, TagManager.GetTags(folder), this.useLegacyClassifier);
+			List<Category> categories = new List<Category>();
+
+			if (!this.useLegacyClassifier || !string.IsNullOrEmpty(author))
+			{
+				if (tags.Contains("skip-folder-name"))
+				{
+					tags.Remove("skip-folder-name");
+					categories.Add(new Category(categoryName, author, this.GetCategoryFiles(folder, tags)));
+				}
+				else
+				{
+					categories.Add(new Category(categoryName, author, this.GetCategoryFiles(folder, tags, this.ToItemCase(categoryName))));
+				}
+				return categories;
+			}
+			else
+			{
+				tags.Remove("skip-folder-name");
+				foreach (string subfolder in Directory.GetDirectories(folder))
+				{
+					categories.AddRange(this.GetCategoriesRecursive(subfolder, tags));
+				}
+			}
+
+			return categories;
+		}
+
+		private List<SoundFile> GetCategoryFiles(string folder, List<string> cumulTags, string pathName = "")
+		{
+			List<SoundFile> files = new List<SoundFile>();
+			int index = 1;
+			
+			List<string> entries = new List<string>(Directory.GetFileSystemEntries(folder));
+			entries.Sort(new NaturalSortComparer());
+
+			foreach (string entry in entries)
+			{
+				if (Directory.Exists(entry))
+				{
+					string folderName = Path.GetFileName(entry);
+					TagManager.ConvertTagsToNewVersion(folder); //TODO: remove this
+					List<string> tags = TagManager.CombineTags(cumulTags, TagManager.GetTags(entry), this.useLegacyClassifier);
+
+					if (this.useLegacyClassifier)
+					{
+						if (folderName.ToUpper().Contains("FX") || folderName.ToUpper().Contains("ORIGINAL"))
+						{
+							continue;
+						}
+						else if (folderName.ToUpper() == "NORMAL")
+						{
+							tags.Add("skip-folder-name");
+						}
+					}
+
+					if (tags.Contains("skip-folder-name"))
+					{
+						tags.Remove("skip-folder-name");
+						files.AddRange(this.GetCategoryFiles(entry, tags, pathName));
+					}
+					else if (folderName.ToUpper() == folderName)
+					{
+						files.AddRange(this.GetCategoryFiles(entry, tags, pathName + folderName));
+					}
+					else
+					{
+						files.AddRange(this.GetCategoryFiles(entry, tags, pathName + this.ToItemCase(folderName)));
+					}
+				}
+				else if (AudioProcessor.IsValidAudioFile(entry) && index <= this.maxPerCategory)
+				{
+					files.Add(new SoundFile(
+						this.BuildItemName(pathName, cumulTags, entry, index++), 
+						entry, 
+						TagManager.GetPrefabModifier(cumulTags)
+					));
+				}
+			}
+			return files;
+		}
+
+		private string BuildItemName(string pathName, List<string> tags, string filename, int index)
+		{
+			if (this.useLegacyClassifier && (Path.GetFileNameWithoutExtension(filename).ToLower().Contains("loop") || Path.GetFileNameWithoutExtension(filename).ToLower().Contains("full")) && !tags.Contains("loop"))
+			{
+				throw new Exception("Looping sound file detected: " + filename + ". Please add the 'loop' tag to the folder.");
+			}
+
+			string name = string.IsNullOrEmpty(pathName) ? this.ToItemCase(Path.GetFileNameWithoutExtension(filename)) : pathName;
+			return TagManager.ApplyNameModifierTags(name, tags, filename, index);
+		}
+
+		private string ToItemCase(string input)
 		{
 			if (string.IsNullOrEmpty(input)) return input;
 
-			string[] words = Regex.Split(Utils.ToValidKoiFileName(input).Replace("-", "_"), @"[\s_]+");
+			string[] words = Regex.Split(Utils.ToZipmodFileName(input).Replace("-", "_"), @"[\s_]+");
 			StringBuilder itemCase = new StringBuilder();
 
 			foreach (string word in words)
@@ -380,148 +452,9 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			return itemCase.ToString();
 		}
 
-		private List<Category> recursiveGetCategories(string folder, List<string> cumulTags)
+		private string GetAssetBundlePath(string categoryKey)
 		{
-			string folderName = Path.GetFileName(folder);
-			Match match = Regex.Match(folderName, @"^(?<categoryName>[^()]+)(\((?<author>[^)]+)\))?$");
-			string categoryName = this.useLegacyClassifier ? match.Groups["categoryName"].Value.Trim() : folderName;
-			string author = match.Groups["author"].Value.Trim();
-
-			List<string> tags = TagManager.CombineTags(cumulTags, TagManager.GetTags(folder), this.useLegacyClassifier);
-			List<Category> categories = new List<Category>();
-
-			if (!this.useLegacyClassifier || !string.IsNullOrEmpty(author))
-			{
-				if (tags.Contains("skip-folder-name"))
-				{
-					tags.Remove("skip-folder-name");
-					categories.Add(new Category(categoryName, author, this.getCategoryFiles(folder, tags)));
-				}
-				else
-				{
-					categories.Add(new Category(categoryName, author, this.getCategoryFiles(folder, tags, this.toItemCase(categoryName))));
-				}
-				return categories;
-			}
-			else
-			{
-				tags.Remove("skip-folder-name");
-				foreach (string subfolder in Directory.GetDirectories(folder))
-				{
-					categories.AddRange(this.recursiveGetCategories(subfolder, tags));
-				}
-			}
-
-			return categories;
-		}
-
-		private List<SoundFile> getCategoryFiles(string folder, List<string> cumulTags, string pathName = "")
-		{
-			List<SoundFile> files = new List<SoundFile>();
-			int index = 1;
-
-			foreach (string entry in Directory.GetFileSystemEntries(folder))
-			{
-				if (Directory.Exists(entry))
-				{
-					string folderName = Path.GetFileName(entry);
-					List<string> tags = TagManager.CombineTags(cumulTags, TagManager.GetTags(entry), this.useLegacyClassifier);
-
-					if (this.useLegacyClassifier)
-					{
-						if (folderName.ToUpper().Contains("FX") || folderName.ToUpper().Contains("ORIGINAL"))
-						{
-							continue;
-						}
-						else if (folderName.ToUpper() == "NORMAL")
-						{
-							tags.Add("skip-folder-name");
-						}
-					}
-
-					if (tags.Contains("skip-folder-name"))
-					{
-						tags.Remove("skip-folder-name");
-						files.AddRange(this.getCategoryFiles(entry, tags, pathName));
-					}
-					else if (folderName.ToUpper() == folderName)
-					{
-						files.AddRange(this.getCategoryFiles(entry, tags, pathName + folderName));
-					}
-					else
-					{
-						files.AddRange(this.getCategoryFiles(entry, tags, pathName + this.toItemCase(folderName)));
-					}
-				}
-				else if (AudioProcessor.IsValidAudioFile(entry) && index <= this.maxPerCategory)
-				{
-					Utils.Tuple<float> threshold = null;
-					foreach (string tag in cumulTags)
-					{
-						Match thresholdMatch = Regex.Match(tag, @"threshold-(?<minValue>\d+(\.\d+)?)-(?<maxValue>\d+(\.\d+)?)");
-						if (thresholdMatch.Success)
-						{
-							threshold = new Utils.Tuple<float>(float.Parse(thresholdMatch.Groups["minValue"].Value), float.Parse(thresholdMatch.Groups["maxValue"].Value));
-							break;
-						}
-					}
-					files.Add(new SoundFile(this.buildItemName(pathName, cumulTags, entry, index++), entry, cumulTags.Contains("loop"), threshold));
-				}
-			}
-			return files;
-		}
-
-		private string buildItemName(string pathName, List<string> tags, string filename, int index)
-		{
-			if (this.useLegacyClassifier && (Path.GetFileNameWithoutExtension(filename).ToLower().Contains("loop") || Path.GetFileNameWithoutExtension(filename).ToLower().Contains("full")) && !tags.Contains("loop"))
-			{
-				throw new Exception("Looping sound file detected: " + filename + ". Please add the 'loop' tag to the folder.");
-			}
-
-			if (tags.Contains("keep-name"))
-			{
-				return Path.GetFileNameWithoutExtension(filename);
-			}
-
-			string name = string.IsNullOrEmpty(pathName) ? this.toItemCase(Path.GetFileNameWithoutExtension(filename)) : pathName;
-			for (int i = tags.Count - 1; i >= 0; i--)
-			{
-				string tag = tags[i];
-				Match appendMatch = Regex.Match(tag, @"append-(?<appendValue>.+)");
-				if (appendMatch.Success)
-				{
-					name += appendMatch.Groups["appendValue"].Value;
-				}
-
-				Match prependMatch = Regex.Match(tag, @"prepend-(?<prependValue>.+)");
-				if (prependMatch.Success)
-				{
-					name = prependMatch.Groups["prependValue"].Value + name;
-				}
-			}
-
-			if (tags.Contains("appendfilename"))
-			{
-				name += Path.GetFileNameWithoutExtension(filename);
-			}
-			if (tags.Contains("prependfilename"))
-			{
-				name = Path.GetFileNameWithoutExtension(filename) + name;
-			}
-
-			if (tags.Contains("no-index"))
-			{
-				return name;
-			}
-			else
-			{
-				return name + (index > 9 ? index.ToString() : "0" + index.ToString());
-			}
-		}
-
-		private string getAssetBundlePath()
-		{
-			return Path.Combine(Path.Combine("studio", Utils.ToValidKoiFileName(Utils.GetModGuid(this.modPath))), "bundle.unity3d");
+			return "studio/" + Utils.ToZipmodFileName(Utils.GetModGuid(this.modPath)) + "/" + Utils.ToZipmodFileName(categoryKey) + "/bundle.unity3d";
 		}
 	}
 
