@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Linq;
 using System.Xml;
 using UnityEditor;
 using UnityEngine;
@@ -275,41 +276,58 @@ public static class Utils
 
 	}
 
-	public static void GetSelectedFolderPath(out string[] selectedPaths, out bool isSidePanel)
+	public static void GetSelectedFolderPaths(out string[] selectedPaths, out bool isSidePanel)
 	{
-		if (Selection.assetGUIDs.Length > 0)
+		List<string> paths = new List<string>();
+		foreach (string assetGUID in Selection.assetGUIDs)
 		{
-			selectedPath = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[Selection.assetGUIDs.Length - 1]);
-			isSidePanel = true;
+			string path = GetModPath(AssetDatabase.GUIDToAssetPath(assetGUID), false); 
+			if (path == null || !Directory.Exists(path))
+			{
+				Debug.LogError("Selection parent folder is not a mod directory: " + path);
+				throw new Exception("Invalid side panel folder, select 'Assets/Mods/<your_mod_name>' or files/folders in 'Assets/Mods/<your_mod_name>/Sources'");
+			}
+			else
+			{
+				paths.Add(path);
+			}
 		}
-		else if (Selection.activeObject != null)
+
+		if (paths.Count > 0)
 		{
-			selectedPath = AssetDatabase.GetAssetPath(Selection.activeObject);
-			isSidePanel = false;
+			selectedPaths = paths.ToArray();
+			isSidePanel = true;
 		}
 		else
 		{
-			throw new Exception("Please select a folder in the Assets/Mods directory.");
-		}
-
-		if (string.IsNullOrEmpty(selectedPath))
-		{
-			throw new Exception("Selection cannot be empty");
-		}
-
-		if (isSidePanel)
-		{
-			string parentFolder = Path.GetFileName(Path.GetDirectoryName(selectedPath));
-			if (!Directory.Exists(selectedPath) || parentFolder != "Mods")
+			foreach (UnityEngine.Object obj in Selection.objects)
 			{
-				Debug.LogError("Selection parent folder is '" + parentFolder + "' while it should be 'Mods'");
-				throw new Exception("Invalid side panel folder '" + selectedPath + "', select 'Assets/Mods/<your_mod_name>' or an individual file/folder in 'Assets/Mods/<your_mod_name>/Sources'");
+				string path = AssetDatabase.GetAssetPath(obj);
+				if (!string.IsNullOrEmpty(path) || !File.Exists(path) && !Directory.Exists(path))
+				{
+					throw new Exception("Selection does not exist: " + path);
+				}
+				else
+				{
+					paths.Add(path);
+				}
+			}
+
+			if (paths.Count > 0)
+			{
+				selectedPaths = paths.ToArray();
+				isSidePanel = false;
+			}
+			else
+			{
+				throw new Exception("Selection cannot be empty");
 			}
 		}
-		else if (!File.Exists(selectedPath) && !Directory.Exists(selectedPath))
-		{
-			throw new Exception("Selection does not exist: " + selectedPath);
-		}
+	}
+
+	public static bool IsValid3DSEModPath(string path)
+	{
+		return Directory.GetParent(path).Name == "Mods" && File.Exists(Path.Combine(path, "base_3dse.prefab"));
 	}
 
 	public static string ToZipmodFileName(string input)
@@ -318,14 +336,9 @@ public static class Utils
 	}
 
 	public static T GetLastValue<T>(IEnumerable<T> collection)
-		{
-			T last = default(T);
-			foreach (T item in collection)
-			{
-				last = item;
-			}
-			return last;
-		}
+	{
+		return collection.Last();
+	}
 
 	public static string ToPascalCase(string input)
 	{
@@ -355,61 +368,6 @@ public static class Utils
 
 		string snakeCase = Regex.Replace(input, "([a-z])([A-Z])", "$1_$2").ToLower().Replace("-", "_");
 		return Regex.Replace(ToZipmodFileName(snakeCase), @"_+", "_");
-	}
-
-	public static string GetItemDataFolder(string modPath)
-	{
-		string path = Path.Combine(modPath, "List/Studio/DataFiles");
-		if (!Directory.Exists(path))
-		{
-			throw new Exception("Missing List/Studio/DataFiles folder in mod directory: " + modPath);
-		}
-		
-		return path;
-	}
-
-	public static Tuple<string> GetCsvItemFilePaths(string modPath)
-	{
-		string csvFolder = GetItemDataFolder(modPath);
-		string[] listFiles = Directory.GetFiles(csvFolder, "ItemList_00*.csv");
-		string[] categoryFiles = Directory.GetFiles(csvFolder, "ItemCategory_00*.csv");
-		return Tuple<string>.Create(
-			categoryFiles.Length > 0 ? categoryFiles[0] : null, 
-			listFiles.Length > 0 ? listFiles[0] : null
-		);
-	}
-
-	public static Tuple<string> GetCsvModInfo(string itemListPath)
-	{
-		Match match = Regex.Match(Path.GetFileName(itemListPath), @"ItemList_(\d+)_(\d+)_(\d+)");
-		if (!match.Success)
-		{
-			return Tuple<string>.Create(null, null);
-		}
-		else
-		{
-			return Tuple<string>.Create(match.Groups[2].Value, match.Groups[3].Value);
-		}
-	}
-
-	public static void WriteToCsv(string filePath, List<string> lines)
-	{
-		File.WriteAllLines(filePath, lines.ToArray(), System.Text.Encoding.UTF8);
-	}
-
-	public static List<string> GetItemGroupHeaders()
-	{
-		return new List<string>(new string[] { "Group Number,Name" });
-	}
-
-	public static List<string> GetItemCategoryHeaders()
-	{
-		return new List<string>(new string[] { "Category Number,Name" });
-	}
-
-	public static List<string> GetItemListHeaders()
-	{
-		return new List<string> (new string[] {"ID,Group Number,Category Number,Name,Manifest,Bundle Path,File Name,Child Attachment Transform,Animation,Color 1,Pattern 1,Color 2,Pattern 2,Color 3,Pattern 3,Scaling,Emission"});
 	}
 
 	public static string GetModUID(string modPath)
@@ -450,18 +408,33 @@ public static class Utils
 		}
 	}
 
-	public static string GetModPath(string selectedPath)
+	public static string GetModPath(string selectedPath, bool raise_exec = true)
 	{
-		string[] directories = selectedPath.Split('/');
+		// Get the directory separator character from selectedPath
+		string[] directories = selectedPath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar);
 		for (int i = 0; i < directories.Length; i++)
 		{
+			Debug.Log(directories[i]);
 			if (directories[i] == "Mods" && i + 1 < directories.Length)
 			{
 				return string.Join(Path.DirectorySeparatorChar.ToString(), directories, 0, i + 2);
 			}
 		}
 
-		throw new Exception("Mods folder not found in path: " + selectedPath);
+		if (raise_exec)
+		{
+			throw new Exception("Mods folder not found in path: " + selectedPath);
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	public static string GetModName(string modPath)
+	{
+		string[] directories = modPath.Split(Path.DirectorySeparatorChar);
+		return directories[directories.Length - 1];
 	}
 
 	public static string GetRelativePath(string basePath, string fullPath)
@@ -471,7 +444,7 @@ public static class Utils
 
 		Uri baseUri = new Uri(basePath);
 		Uri fullUri = new Uri(fullPath);
-		return Uri.UnescapeDataString(baseUri.MakeRelativeUri(fullUri).ToString().Replace('/', Path.DirectorySeparatorChar));
+		return Uri.UnescapeDataString(baseUri.MakeRelativeUri(fullUri).ToString().Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar));
 	}
 
 	public static void SetAssetBundleNameInMetaFile(string metaFilePath, string bundleName)
@@ -524,6 +497,16 @@ public static class Utils
 		{
 			return seComponent._isLoop == true;
 		}
+	}
+
+	public static string FormatErrorWithStackTrace(Exception e)
+	{
+		return string.Format("{0}: {1}\nStack Trace:\n{2}", e.GetType().Name, e.Message, e.StackTrace);
+	}
+	
+	public static void LogErrorWithTrace(Exception e)
+	{
+		Debug.LogError(FormatErrorWithStackTrace(e));
 	}
 }
 

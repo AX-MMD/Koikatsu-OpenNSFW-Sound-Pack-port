@@ -9,7 +9,7 @@ public class RenameWavsFromParentName : MonoBehaviour
     [MenuItem("Assets/3DSE/Rename Wavs From Parent Name")]
     public static void RenameWavFiles()
     {
-        string folderPath = GetSelectedFolderPath();
+        string folderPath = GetSelectedFolderPaths();
         if (string.IsNullOrEmpty(folderPath))
         {
             Debug.LogError("Please select a folder in the Assets directory.");
@@ -47,7 +47,7 @@ public class RenameWavsFromParentName : MonoBehaviour
         Debug.Log(string.Format("{0} WAV files renamed successfully.", i - 1));
     }
 
-    private static string GetSelectedFolderPath()
+    private static string GetSelectedFolderPaths()
     {
         string path = null;
         if (Selection.activeObject != null)

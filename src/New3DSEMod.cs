@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Xml;
 using IllusionMods.Koikatsu3DSEModTools;
+using IllusionMods.KoikatsuStudioCsv;
 
 public class New3DSEMod : MonoBehaviour
 {
@@ -94,13 +95,13 @@ public class New3DSEModWindow : EditorWindow
 		fields["description"] = EditorGUILayout.TextField("Description", fields["description"]);
 		fields["website"] = EditorGUILayout.TextField("Website", fields["website"]);
 
-        string newDestinationPath = "";
+		string newDestinationPath = "";
 
 		if (GUILayout.Button("Create"))
 		{
 			try
 			{
-                fields["guid"] = Utils.MakeModGuid(fields["author"], fields["name"]);
+				fields["guid"] = Utils.MakeModGuid(fields["author"], fields["name"]);
 				Utils.ManifestInfo manifest = new Utils.ManifestInfo(fields);
 				List<string> errors = manifest.validate();
 
@@ -118,17 +119,17 @@ public class New3DSEModWindow : EditorWindow
 				New3DSEMod.CopyDirectory(sourcePath, newDestinationPath);
 				manifest.save(Path.Combine(newDestinationPath, "manifest.xml"));
 
-				string listPath = Path.Combine(newDestinationPath, Utils.GetItemDataFolder());
-				List<string> csvLines = Utils.GetItemGroupHeaders();
+				string listPath = Path.Combine(newDestinationPath, CsvUtils.GetItemDataFolder(newDestinationPath));
+				var group = new List<CsvStudioGroup>();
 				if (fields["itemGroupName"] == "3DSE")
 				{
-					csvLines.Add("11,3DSE" );
+					group.Add(new CsvStudioGroup("11", "3DSE" ));
 				}
 				else
 				{
-					csvLines.Add(manifest.muid + "," + fields["itemGroupName"]);
+					group.Add(new CsvStudioGroup(manifest.muid, fields["itemGroupName"]));
 				}
-				Utils.WriteToCsv(Path.Combine(listPath, "ItemGroup_DataFiles.csv"), csvLines);
+				CsvUtils.WriteToCsv(Path.Combine(listPath, "ItemGroup_DataFiles.csv"), group);
 
 				// Rename the ItemCategory CSV file
 				if (fields["itemGroupName"] != "3DSE")
@@ -160,14 +161,14 @@ public class New3DSEModWindow : EditorWindow
 				Debug.Log("New 3DSE mod folder '" + manifest.name + "' created successfully.");
 				this.Close();
 			}
-            catch (Exception e)
-            {
-                if (Directory.Exists(newDestinationPath))
-                {
-                    Directory.Delete(newDestinationPath, true);
-                }
-                throw e;
-            }
+			catch (Exception e)
+			{
+				if (Directory.Exists(newDestinationPath))
+				{
+					Directory.Delete(newDestinationPath, true);
+				}
+				throw e;
+			}
 		}
 	}
 }

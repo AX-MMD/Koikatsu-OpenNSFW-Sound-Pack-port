@@ -6,8 +6,6 @@ using System.IO;
 using Studio.Sound;
 using IllusionMods.Koikatsu3DSEModTools;
 
-// This script generates prefabs from .wav files in a specified folder.
-
 public class GeneratePrefabsFromSource : MonoBehaviour
 {
     [MenuItem("Assets/3DSE/Generate Only Prefabs")]
@@ -20,16 +18,31 @@ public class GeneratePrefabsFromSource : MonoBehaviour
     {
         Debug.Log("Generate Prefabs started...");
 
-        string selectedPath;
-        bool isSidePanel;
-        Utils.GetSelectedFolderPath(out selectedPath, out isSidePanel);
+        int total = 0;
+		string[] selectedPaths;
+		bool isSidePanel;
+		Utils.GetSelectedFolderPaths(out selectedPaths, out isSidePanel);
 
-        Debug.Log("Select path: " + selectedPath);
-
-        KK3DSEModManager modManager = new KK3DSEModManager(selectedPath, true);
-        List<Category> categories = modManager.GetCategories();
-        modManager.GeneratePrefabs(true, isSidePanel, categories);
-
-        Debug.Log("Generate Prefabs completed for: " + selectedPath);
+		foreach (string selectedPath in selectedPaths)
+		{
+			Debug.Log("Select path: " + selectedPath);
+			try
+			{
+				KK3DSEModManager modManager = new KK3DSEModManager(selectedPath, true);
+				List<Category> categories = modManager.GetCategories();
+				int countB = modManager.GeneratePrefabs(true, isSidePanel, categories);
+				Debug.Log("Generated " + countB + " items for " + selectedPath);
+			}
+			catch (Exception e)
+			{
+				Utils.LogErrorWithTrace(e);
+                EditorUtility.ClearProgressBar();
+				EditorUtility.DisplayDialog("Error", e.Message, "OK");
+				return;
+			}
+		}
+        EditorUtility.ClearProgressBar();
+		EditorUtility.DisplayDialog("Success", "Generated " + total + " prefabs.", "OK");
+		AssetDatabase.Refresh();
     }
 }

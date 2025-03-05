@@ -7,9 +7,9 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using IllusionMods.Koikatsu3DSEModTools;
 
-public class GenerateItemListFromPrefabs : MonoBehaviour
+public class GenerateItemFiles : MonoBehaviour
 {
-    [MenuItem("Assets/3DSE/Generate Only ItemList")]
+    [MenuItem("Assets/3DSE/Generate Only Item Files")]
     public static void GenerateCSV()
     {
         GenerateCSV(true);
@@ -17,17 +17,31 @@ public class GenerateItemListFromPrefabs : MonoBehaviour
 
     public static void GenerateCSV(bool create)
     {
-        Debug.Log("Generate ItemList started...");
-        string selectedPath;
-        bool isSidePanel;
-        Utils.GetSelectedFolderPath(out selectedPath, out isSidePanel);
+        Debug.Log("Generate Item Files started...");
+        int total = 0;
+        string[] selectedPaths;
+		bool isSidePanel;
+		Utils.GetSelectedFolderPaths(out selectedPaths, out isSidePanel);
 
-        Debug.Log("Select path: " + selectedPath);
-
-        KK3DSEModManager modManager = new KK3DSEModManager(selectedPath, true);
-        List<Category> categories = modManager.GetCategories();
-        modManager.GenerateCSV(true, isSidePanel, categories);
-
-        Debug.Log("Generate ItemList completed for: " + selectedPath);
+		foreach (string selectedPath in selectedPaths)
+		{
+			Debug.Log("Select path: " + selectedPath);
+            try
+            {
+                KK3DSEModManager modManager = new KK3DSEModManager(selectedPath, true);
+                List<Category> categories = modManager.GetCategories();
+                total += modManager.GenerateCSV(true, isSidePanel, categories);
+            }
+            catch (Exception e)
+            {
+                Utils.LogErrorWithTrace(e);
+                EditorUtility.ClearProgressBar();
+                EditorUtility.DisplayDialog("Error", e.Message, "OK");
+                return;
+            }
+		}
+        EditorUtility.ClearProgressBar();
+        EditorUtility.DisplayDialog("Success", "Generated Item files completed for " + total + " items.", "OK");
+		AssetDatabase.Refresh();
     }
 }

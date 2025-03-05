@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System;
 using UnityEditor;
+using UnityEngine;
 
 
 namespace IllusionMods.Koikatsu3DSEModTools {
@@ -10,12 +11,12 @@ namespace IllusionMods.Koikatsu3DSEModTools {
     public static class TagManager {
 
         public static HashSet<string> ValidTags = new HashSet<string> { 
-            // type "tag%%<value>" tags
+            // type "tag%%<value>" tags //
             "append", 
-            "prepend", 
-            "threshold", 
-            "volume",
-            // regular tags
+            "prepend",
+            // "volume",
+            // "threshold",
+            // regular tags //
             "appendfilename", 
             "prependfilename", 
             "no-index", 
@@ -116,7 +117,7 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 
         public static bool IsValidTag(string tag)
         {
-            return ValidTags.Contains(tag) || ValidTags.Contains(tag.Split(new string[] { "%%" }, StringSplitOptions.None)[0]) || ValidTags.Contains(tag.Split('-')[0]);
+            return ValidTags.Contains(tag) || ValidTags.Contains(tag.Split(new string[] { "%%" }, StringSplitOptions.None)[0]);
         }
 
         public static bool IsValidTags(List<string> tags)
@@ -145,7 +146,8 @@ namespace IllusionMods.Koikatsu3DSEModTools {
         {
             if (tags.Contains("keep-name"))
 			{
-				return filename;
+                Debug.Log(filename + " " + Path.GetFileNameWithoutExtension(filename));
+				return Path.GetFileNameWithoutExtension(filename);
 			}
 
             string name = itemName;
@@ -174,14 +176,7 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 				name = Path.GetFileNameWithoutExtension(filename) + name;
 			}
 
-			if (tags.Contains("no-index"))
-			{
-				return name;
-			}
-			else
-			{
-				return name + (index > 9 ? index.ToString() : "0" + index.ToString());
-			}
+			return tags.Contains("no-index") ? name : name + index.ToString("D2");
         }
 
         public static PrefabModifier GetPrefabModifier(List<string> tags)
@@ -189,21 +184,24 @@ namespace IllusionMods.Koikatsu3DSEModTools {
             bool isLoop = tags.Contains("loop");
             float volume = -1.0f;
             Utils.Tuple<float> threshold = null;
-            foreach (string tag in tags)
-            {
-                Match volumeMatch = Regex.Match(tag, @"volume%%(?<volumeValue>.+)");
-                if (volumeMatch.Success)
-                {
-                    volume = float.Parse(volumeMatch.Groups["volumeValue"].Value);
-                }
 
-                Match thresholdMatch = Regex.Match(tag, @"threshold%%(?<minValue>\d+(\.\d+)?)-(?<maxValue>\d+(\.\d+)?)");
-                    if (thresholdMatch.Success)
-                    {
-                        threshold = new Utils.Tuple<float>(float.Parse(thresholdMatch.Groups["minValue"].Value), float.Parse(thresholdMatch.Groups["maxValue"].Value));
-                        break;
-                    }
-            }
+            // Deprecated volume and threshold tags in favor of editing prefabs directly and use UpdateFromSource
+
+            // foreach (string tag in tags)
+            // {
+            //     Match volumeMatch = Regex.Match(tag, @"volume%%(?<volumeValue>.+)");
+            //     if (volumeMatch.Success)
+            //     {
+            //         volume = float.Parse(volumeMatch.Groups["volumeValue"].Value);
+            //     }
+
+            //     Match thresholdMatch = Regex.Match(tag, @"threshold%%(?<minValue>\d+(\.\d+)?)-(?<maxValue>\d+(\.\d+)?)");
+            //         if (thresholdMatch.Success)
+            //         {
+            //             threshold = new Utils.Tuple<float>(float.Parse(thresholdMatch.Groups["minValue"].Value), float.Parse(thresholdMatch.Groups["maxValue"].Value));
+            //             break;
+            //         }
+            // }
             return new PrefabModifier(isLoop, threshold, volume);
         }
 
