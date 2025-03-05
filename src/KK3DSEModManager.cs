@@ -27,7 +27,7 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 		{
 			this.useLegacyClassifier = useLegacyClassifier;
 			this.maxPerCategory = maxPerCategory;
-			this.modPath = Utils.GetModPath(selectedPath);
+			this.modPath = Utils.GetModPath(selectedPath, true);
 			this.modName = Utils.GetModName(this.modPath);
 			this.prefabOutputPath = Path.Combine(this.modPath, "Prefab");
 			if (!Directory.Exists(prefabOutputPath))

@@ -276,58 +276,9 @@ public static class Utils
 
 	}
 
-	public static void GetSelectedFolderPaths(out string[] selectedPaths, out bool isSidePanel)
-	{
-		List<string> paths = new List<string>();
-		foreach (string assetGUID in Selection.assetGUIDs)
-		{
-			string path = GetModPath(AssetDatabase.GUIDToAssetPath(assetGUID), false); 
-			if (path == null || !Directory.Exists(path))
-			{
-				Debug.LogError("Selection parent folder is not a mod directory: " + path);
-				throw new Exception("Invalid side panel folder, select 'Assets/Mods/<your_mod_name>' or files/folders in 'Assets/Mods/<your_mod_name>/Sources'");
-			}
-			else
-			{
-				paths.Add(path);
-			}
-		}
-
-		if (paths.Count > 0)
-		{
-			selectedPaths = paths.ToArray();
-			isSidePanel = true;
-		}
-		else
-		{
-			foreach (UnityEngine.Object obj in Selection.objects)
-			{
-				string path = AssetDatabase.GetAssetPath(obj);
-				if (!string.IsNullOrEmpty(path) || !File.Exists(path) && !Directory.Exists(path))
-				{
-					throw new Exception("Selection does not exist: " + path);
-				}
-				else
-				{
-					paths.Add(path);
-				}
-			}
-
-			if (paths.Count > 0)
-			{
-				selectedPaths = paths.ToArray();
-				isSidePanel = false;
-			}
-			else
-			{
-				throw new Exception("Selection cannot be empty");
-			}
-		}
-	}
-
 	public static bool IsValid3DSEModPath(string path)
 	{
-		return Directory.GetParent(path).Name == "Mods" && File.Exists(Path.Combine(path, "base_3dse.prefab"));
+		return Directory.Exists(path) && Directory.GetParent(path).Name == "Mods" && File.Exists(Path.Combine(path, "base_3dse.prefab"));
 	}
 
 	public static string ToZipmodFileName(string input)
@@ -408,13 +359,12 @@ public static class Utils
 		}
 	}
 
-	public static string GetModPath(string selectedPath, bool raise_exec = true)
+	public static string GetModPath(string selectedPath, bool raise_exec = false)
 	{
 		// Get the directory separator character from selectedPath
 		string[] directories = selectedPath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar);
 		for (int i = 0; i < directories.Length; i++)
 		{
-			Debug.Log(directories[i]);
 			if (directories[i] == "Mods" && i + 1 < directories.Length)
 			{
 				return string.Join(Path.DirectorySeparatorChar.ToString(), directories, 0, i + 2);
@@ -433,6 +383,10 @@ public static class Utils
 
 	public static string GetModName(string modPath)
 	{
+		if (Directory.GetParent(modPath).Name != "Mods")
+		{
+			modPath = GetModPath(modPath, true);
+		}
 		string[] directories = modPath.Split(Path.DirectorySeparatorChar);
 		return directories[directories.Length - 1];
 	}

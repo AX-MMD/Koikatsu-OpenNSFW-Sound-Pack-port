@@ -284,7 +284,7 @@ namespace IllusionMods.Koikatsu3DSEModTools
 
 		public static bool IsValidAudioFile(string filePath)
 		{
-			return ValidFileExtensions.Contains(Path.GetExtension(filePath).ToLower());
+			return File.Exists(filePath) && ValidFileExtensions.Contains(Path.GetExtension(filePath).ToLower());
 		}
 
 		private static IDisposable GetReader(string filePath, out IWaveProvider waveProvider)

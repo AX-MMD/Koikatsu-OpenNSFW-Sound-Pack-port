@@ -23,6 +23,11 @@ public class GenerateFromSource : MonoBehaviour
             }
             return true;
         }
+		else if (Selection.activeObject != null)
+		{
+			string selectedPath = AssetDatabase.GetAssetPath(Selection.activeObject);
+			return AssetDatabase.IsValidFolder(selectedPath) && Utils.IsValid3DSEModPath(Utils.GetModPath(selectedPath));
+		}
         else
         {
             return false;

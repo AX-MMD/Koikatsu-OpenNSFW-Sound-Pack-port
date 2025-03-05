@@ -10,8 +10,26 @@ using IllusionMods.KoikatsuStudioCsv;
 
 public class New3DSEMod : MonoBehaviour
 {
+	[MenuItem("Assets/3DSE/New 3DSE Mod", true)]
+	public static bool ValidateMakeNew3DSEMod()
+	{
+		if (Selection.objects.Length > 0 || Selection.assetGUIDs.Length > 1)
+		{
+			return false;
+		}
+		else if (Selection.assetGUIDs.Length == 1)
+		{
+			string path = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]);
+			return AssetDatabase.IsValidFolder(path) && (Path.GetFileName(path) == "Mods" || Directory.GetParent(path).Name == "Mods");
+		}
+		else
+		{
+			return true;
+		}
+	}
+
 	[MenuItem("Assets/3DSE/New 3DSE Mod")]
-	public static void CopyAndRename()
+	public static void MakeNew3DSEMod()
 	{
 		string sourcePath = "Assets/Examples/Studio 3DSE Example";
 		string destinationPath = "Assets/Mods";

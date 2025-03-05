@@ -9,13 +9,18 @@ using IllusionMods.Koikatsu3DSEModTools;
 public class AdjustAudio : MonoBehaviour
 {
 	[MenuItem("Assets/3DSE/Adjust Audio", true)]
-    public static bool ValidateAdjust()
+	public static bool ValidateAdjust()
 	{
-		if (Selection.objects.Length > 0)
+		foreach (string guid in Selection.assetGUIDs)
 		{
-			return true;
+			string path = AssetDatabase.GUIDToAssetPath(guid);
+			if (!Directory.Exists(path) && !AudioProcessor.IsValidAudioFile(path))
+			{
+				return false;
+			}
 		}
-		return false;
+
+		return Selection.assetGUIDs.Length > 0;
 	}
 
 	[MenuItem("Assets/3DSE/Adjust Audio")]
@@ -139,7 +144,7 @@ public class AdjustAudioWindow : EditorWindow
 			try
 			{
 				List<string> files = GetSelectedAudioFiles();
-				if (files.Length == 0)
+				if (files.Count == 0)
 				{
 					throw new Exception("No files or folders selected.");
 				}
@@ -243,9 +248,8 @@ public class AdjustAudioWindow : EditorWindow
 	private static List<string> GetSelectedAudioFiles()
 	{
 		List<string> paths = new List<string>();
-		foreach (UnityEngine.Object obj in Selection.objects)
+		foreach (string path in Selection.assetGUIDs.Select(guid => AssetDatabase.GUIDToAssetPath(guid)))
 		{
-			string path = AssetDatabase.GetAssetPath(obj);
 			string[] allFiles;
 			if (Directory.Exists(path))
 			{
@@ -257,7 +261,7 @@ public class AdjustAudioWindow : EditorWindow
 			}
 			else
 			{
-				allFiles = string[] { };
+				allFiles = new string[] { };
 			}
 
 			foreach (string file in allFiles)
