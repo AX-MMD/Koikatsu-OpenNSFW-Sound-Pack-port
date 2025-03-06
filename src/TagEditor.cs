@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using IllusionMods.Koikatsu3DSEModTools;
@@ -34,7 +35,7 @@ public class TagEditor : MonoBehaviour
 	[MenuItem("Assets/3DSE/Edit 3dse tags")]
 	public static void CreateTagFiles()
 	{
-		string selectedPath = AssetDatabase.GetAssetPath(Selection.activeObject);
+		string selectedPath = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]);
 		TagEditorWindow.ShowWindow(selectedPath);
 	}
 }
@@ -48,7 +49,7 @@ public class TagEditorWindow : EditorWindow
 	{
 		TagEditorWindow window = GetWindow<TagEditorWindow>("3DSE/Edit 3dse tags");
 		window.selectedPath = path;
-		window.tagsInput = "[" + string.Join("][", TagManager.GetTags(path).ToArray()) + "]";
+		window.tagsInput = "[" + string.Join("][", TagManager.LoadTags(path).ToArray()) + "]";
 		window.Show();
 	}
 

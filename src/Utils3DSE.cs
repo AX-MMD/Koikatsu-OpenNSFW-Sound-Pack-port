@@ -313,6 +313,34 @@ public static class Utils
 		return pascalCase.ToString();
 	}
 
+	public static string ToItemCase(string input)
+	{
+		if (string.IsNullOrEmpty(input))
+		{
+			return input;
+		}
+		 
+		string[] words = Regex.Split(Zipmod.ReplaceInvalidChars(input.Replace(".", "_").Replace(" ", "_")), @"[\s_]+");
+		StringBuilder itemCase = new StringBuilder();
+
+		foreach (string word in words)
+		{
+			foreach (string dashWord in word.Split('-'))
+			{
+				if (dashWord.Length > 0)
+				{
+					itemCase.Append(char.ToUpper(dashWord[0]));
+					if (dashWord.Length > 1)
+					{
+						itemCase.Append(dashWord.Substring(1));
+					}
+				}
+			}
+		}
+
+		return itemCase.ToString();
+	}
+
 	public static string ToSnakeCase(string input)
 	{
 		if (string.IsNullOrEmpty(input)) return input;
@@ -343,7 +371,7 @@ public static class Utils
 
 	public static string MakeModGuid(string authorName, string modName)
 	{
-		return "com." + authorName + "." + ToPascalCase(modName);
+		return "com." + Zipmod.ReplaceInvalidChars(authorName) + "." + Zipmod.ReplaceInvalidChars(modName.Replace(" ", "-"));
 	}
 
 	public static string GetModGuid(string modPath)

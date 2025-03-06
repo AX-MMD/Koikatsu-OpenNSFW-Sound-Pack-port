@@ -312,56 +312,57 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			string[] rootFolders = Directory.GetDirectories(this.sourcesPath);
 			if (rootFolders.Length == 0)
 			{
-				categories.Add(new Category("Default", "", this.GetCategoryFiles(this.sourcesPath, new List<string>(new string[] { "keep-name" }))));
+				categories.Add(new Category("Default", "", this.GetCategoryFiles(this.sourcesPath, new string[] { "keep-name" })));
 			}
 			else
 			{
 				foreach (string rootFolder in rootFolders)
 				{
 					string rootFolderName = Path.GetFileName(rootFolder);
+					List<string> tags = TagManager.GetTags(rootFolder, new string[] { "indexed" }, this.useLegacyClassifier);
 					if (rootFolderName.StartsWith("[") && rootFolderName.EndsWith("]") && Directory.GetDirectories(rootFolder).Length > 0)
 					{
 						categories.Add(new Category(rootFolderName));
 						foreach (string subfolder in Directory.GetDirectories(rootFolder))
 						{
-							categories.AddRange(this.GetCategoriesRecursive(subfolder, new List<string>()));
+							categories.AddRange(this.GetCategoriesRecursive(subfolder, tags));
 						}
 					}
 					else
 					{
-						categories.AddRange(this.GetCategoriesRecursive(rootFolder, new List<string>()));
+						categories.AddRange(this.GetCategoriesRecursive(rootFolder, tags));
 					}
 				}
 			}
 			return categories;
 		}
 
-		private List<Category> GetCategoriesRecursive(string folder, List<string> cumulTags)
+		private List<Category> GetCategoriesRecursive(string folder, ICollection<string> cumulTags = null)
 		{
 			string folderName = Path.GetFileName(folder);
 			Match match = Regex.Match(folderName, @"^(?<categoryName>[^()]+)(\((?<author>[^)]+)\))?$");
 			string categoryName = this.useLegacyClassifier ? match.Groups["categoryName"].Value.Trim() : folderName;
 			string author = match.Groups["author"].Value.Trim();
 
-			List<string> tags = TagManager.CombineTags(cumulTags, TagManager.GetTags(folder), this.useLegacyClassifier);
+			List<string> tags = TagManager.GetTags(folder, cumulTags, this.useLegacyClassifier);
 			List<Category> categories = new List<Category>();
 
 			if (!this.useLegacyClassifier || !string.IsNullOrEmpty(author))
 			{
 				if (tags.Contains("skip-folder-name"))
 				{
-					tags.Remove("skip-folder-name");
+					tags.RemoveAll(item => item == "skip-folder-name");
 					categories.Add(new Category(categoryName, author, this.GetCategoryFiles(folder, tags)));
 				}
 				else
 				{
-					categories.Add(new Category(categoryName, author, this.GetCategoryFiles(folder, tags, this.ToItemCase(categoryName))));
+					categories.Add(new Category(categoryName, author, this.GetCategoryFiles(folder, tags, Utils.ToItemCase(categoryName))));
 				}
 				return categories;
 			}
 			else
 			{
-				tags.Remove("skip-folder-name");
+				tags.RemoveAll(item => item == "skip-folder-name");
 				foreach (string subfolder in Directory.GetDirectories(folder))
 				{
 					categories.AddRange(this.GetCategoriesRecursive(subfolder, tags));
@@ -371,20 +372,19 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			return categories;
 		}
 
-		private List<StudioItemParam> GetCategoryFiles(string folder, List<string> cumulTags, string pathName = "")
+		private List<StudioItemParam> GetCategoryFiles(string folder, ICollection<string> cumulTags, string pathName = "")
 		{
 			List<StudioItemParam> items = new List<StudioItemParam>();
-			int index = 1;
-
 			List<string> entries = new List<string>(Directory.GetFileSystemEntries(folder));
 			entries.Sort(new NaturalSortComparer());
 
+			int index = 1;
 			foreach (string entry in entries)
 			{
 				if (Directory.Exists(entry))
 				{
 					string folderName = Path.GetFileName(entry);
-					List<string> tags = TagManager.CombineTags(cumulTags, TagManager.GetTags(entry), this.useLegacyClassifier);
+					List<string> tags = TagManager.GetTags(entry, cumulTags, this.useLegacyClassifier);
 
 					if (this.useLegacyClassifier)
 					{
@@ -409,7 +409,7 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 					}
 					else
 					{
-						items.AddRange(this.GetCategoryFiles(entry, tags, pathName + this.ToItemCase(folderName)));
+						items.AddRange(this.GetCategoryFiles(entry, tags, pathName + Utils.ToItemCase(folderName)));
 					}
 				}
 				else if (AudioProcessor.IsValidAudioFile(entry) && index <= this.maxPerCategory)
@@ -424,44 +424,15 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			return items;
 		}
 
-		private string BuildItemName(string pathName, List<string> tags, string filename, int index)
+		private string BuildItemName(string pathName, ICollection<string> tags, string filename, int index)
 		{
 			if (this.useLegacyClassifier && (Path.GetFileNameWithoutExtension(filename).ToLower().Contains("loop") || Path.GetFileNameWithoutExtension(filename).ToLower().Contains("full")) && !tags.Contains("loop"))
 			{
 				throw new Exception("Looping sound file detected: " + filename + ". Please add the 'loop' tag to the folder.");
 			}
 
-			string name = string.IsNullOrEmpty(pathName) ? this.ToItemCase(Path.GetFileNameWithoutExtension(filename)) : pathName;
+			string name = string.IsNullOrEmpty(pathName) ? Utils.ToItemCase(Path.GetFileNameWithoutExtension(filename)) : pathName;
 			return TagManager.ApplyNameModifierTags(name, tags, filename, index);
-		}
-
-		private string ToItemCase(string input)
-		{
-			if (string.IsNullOrEmpty(input)) return input;
-
-			string[] words = Regex.Split(Utils.ToZipmodFileName(input).Replace("-", "_"), @"[\s_]+");
-			StringBuilder itemCase = new StringBuilder();
-
-			foreach (string word in words)
-			{
-				if (word.Length > 0)
-				{
-					if (char.ToUpper(word[0]) == word[0])
-					{
-						itemCase.Append(word);
-					}
-					else
-					{
-						itemCase.Append(char.ToUpper(word[0]));
-						if (word.Length > 1)
-						{
-							itemCase.Append(word.Substring(1).ToLower());
-						}
-					}
-				}
-			}
-
-			return itemCase.ToString();
 		}
 
 		private string GetAssetBundlePath(string categoryKey)

@@ -137,7 +137,7 @@ public class New3DSEModWindow : EditorWindow
 				New3DSEMod.CopyDirectory(sourcePath, newDestinationPath);
 				manifest.save(Path.Combine(newDestinationPath, "manifest.xml"));
 
-				string listPath = Path.Combine(newDestinationPath, CsvUtils.GetItemDataFolder(newDestinationPath));
+				string listPath = CsvUtils.GetItemDataFolder(newDestinationPath);
 				var group = new List<CsvStudioGroup>();
 				if (fields["itemGroupName"] == "3DSE")
 				{
