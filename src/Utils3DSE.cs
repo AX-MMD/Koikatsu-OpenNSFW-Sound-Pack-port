@@ -14,6 +14,12 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 
 public static class Utils
 {
+	public struct GenerationResult
+	{
+		public int createCount;
+		public int updateCount;
+		public int deleteCount;
+	}
 
 	public class Tuple<T>
 	{
@@ -154,7 +160,33 @@ public static class Utils
 			this.website = fields.ContainsKey("website") ? fields["website"] : "";
 		}
 
-		public void edit(string guid = null, string author = null, string name = null, string muid = null, string version = null, string description = null, string website = null)
+		public void Update<T>(T fields) where T : ManifestInfo
+		{
+			this.Update(
+				fields.guid,
+				fields.author,
+				fields.name,
+				fields.muid,
+				fields.version,
+				fields.description,
+				fields.website
+			);
+		}
+
+		public void Update(Dictionary<string, string> fields)
+		{
+			this.Update(
+				fields.ContainsKey("guid") ? fields["guid"] : null,
+				fields.ContainsKey("author") ? fields["author"] : null,
+				fields.ContainsKey("name") ? fields["name"] : null,
+				fields.ContainsKey("muid") ? fields["muid"] : null,
+				fields.ContainsKey("version") ? fields["version"] : null,
+				fields.ContainsKey("description") ? fields["description"] : null,
+				fields.ContainsKey("website") ? fields["website"] : null
+			);
+		}
+
+		public void Update(string guid = null, string author = null, string name = null, string muid = null, string version = null, string description = null, string website = null)
 		{
 			if (guid != null) {
 				this.guid = guid;
@@ -179,20 +211,7 @@ public static class Utils
 			}
 		}
 
-		public void edit(Dictionary<string, string> fields)
-		{
-			this.edit(
-				fields.ContainsKey("guid") ? fields["guid"] : null,
-				fields.ContainsKey("author") ? fields["author"] : null,
-				fields.ContainsKey("name") ? fields["name"] : null,
-				fields.ContainsKey("muid") ? fields["muid"] : null,
-				fields.ContainsKey("version") ? fields["version"] : null,
-				fields.ContainsKey("description") ? fields["description"] : null,
-				fields.ContainsKey("website") ? fields["website"] : null
-			);
-		}
-
-		public Dictionary<string, string> toDictionary()
+		public Dictionary<string, string> ToDictionary()
 		{
 			return new Dictionary<string, string>
 			{
@@ -206,33 +225,37 @@ public static class Utils
 			};
 		}
 
-		public List<string> validate()
+		public List<string> Validate()
 		{
 			List<string> errors = new List<string>();
 			if (string.IsNullOrEmpty(this.guid))
 			{
-				errors.Add("GUID is required.");
+				errors.Add("GUID is required");
 			}
 			if (string.IsNullOrEmpty(this.author))
 			{
-				errors.Add("Author name is required.");
+				errors.Add("Author name is required");
 			}
 			if (string.IsNullOrEmpty(this.name))
 			{
-				errors.Add("Mod name is required.");
+				errors.Add("Mod name is required");
 			}
 			if (string.IsNullOrEmpty(this.muid))
 			{
-				errors.Add("MUID is required.");
+				errors.Add("MUID is required");
 			}
 			else if (!Regex.IsMatch(this.muid, @"^\d{3,6}$"))
 			{
-				errors.Add("MUID must be a 3-6 digit number.");
+				errors.Add("MUID must be a 3-6 digit number");
+			}
+			else if (int.Parse(this.muid) < 100 || int.Parse(this.muid) > 999999)
+			{
+				errors.Add("MUID must be between 100 and 999999");
 			}
 			return errors;
 		}
 
-		public void save(string manifestPath)
+		public void Save(string manifestPath)
 		{
 			if (string.IsNullOrEmpty(manifestPath))
 			{
@@ -242,7 +265,7 @@ public static class Utils
 			XmlDocument xmlDoc = new XmlDocument();
 			xmlDoc.Load(manifestPath);
 
-			foreach (KeyValuePair<string, string> field in this.toDictionary())
+			foreach (KeyValuePair<string, string> field in this.ToDictionary())
 			{
 				if (field.Value == null)
 				{
@@ -263,7 +286,7 @@ public static class Utils
 				}
 			}
 
-			List<string> errors = this.validate ();
+			List<string> errors = this.Validate();
 			if (errors.Count == 0)
 			{
 				xmlDoc.Save(manifestPath);
@@ -274,6 +297,58 @@ public static class Utils
 			}
 		}
 
+		public static bool operator ==(ManifestInfo m1, ManifestInfo m2)
+		{
+			if (ReferenceEquals(m1, m2))
+			{
+				return true;
+			}
+
+			if ((object)m1 == null || (object)m2 == null)
+			{
+				return false;
+			}
+
+			return m1.guid == m2.guid &&
+				m1.author == m2.author &&
+				m1.name == m2.name &&
+				m1.muid == m2.muid &&
+				m1.version == m2.version &&
+				m1.description == m2.description &&
+				m1.website == m2.website;
+		}
+
+		public static bool operator !=(ManifestInfo m1, ManifestInfo m2)
+		{
+			return !(m1 == m2);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj == null || GetType() != obj.GetType())
+			{
+				return false;
+			}
+
+			ManifestInfo other = (ManifestInfo)obj;
+			return this == other;
+		}
+
+		public override int GetHashCode()
+		{
+			return (guid ?? "").GetHashCode() ^
+				(author ?? "").GetHashCode() ^
+				(name ?? "").GetHashCode() ^
+				(muid ?? "").GetHashCode() ^
+				(version ?? "").GetHashCode() ^
+				(description ?? "").GetHashCode() ^
+				(website ?? "").GetHashCode();
+		}
+	}
+
+	public static string GetAssetBundlePath(string modPath, string categoryKey)
+	{
+		return "studio/" + ToZipmodFileName(GetModGuid(modPath)) + "/" + Utils.ToZipmodFileName(categoryKey) + "/bundle.unity3d";
 	}
 
 	public static bool IsValid3DSEModPath(string path)

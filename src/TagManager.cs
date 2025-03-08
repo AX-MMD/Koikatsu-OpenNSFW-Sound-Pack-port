@@ -5,38 +5,54 @@ using System;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using IllusionMods.Koikatsu3DSECategoryTool;
 
 
 namespace IllusionMods.Koikatsu3DSEModTools {
 
 	public static class TagManager {
 
+		public static class Tags {
+			public const string Append = "append";
+			public const string Prepend = "prepend";
+			public const string AppendFilename = "appendfilename";
+			public const string PrependFilename = "prependfilename";
+			public const string NoIndex = "no-index";
+			public const string Indexed = "indexed";
+			public const string NoLoop = "no-loop";
+			public const string Loop = "loop";
+			public const string KeepName = "keep-name";
+			public const string FormatKeepName = "format-keep-name";
+			public const string SkipFolderName = "skip-folder-name";
+			public const string LegacyClassifier = "legacy-classifier";
+		} 
+
 		public static HashSet<string> ValidTags = new HashSet<string> { 
 			// type "tag%%<value>" tags //
-			"append", 
-			"prepend",
-			// "volume",
-			// "threshold",
+			Tags.Append, 
+			Tags.Prepend,
 			// regular tags //
-			"appendfilename", 
-			"prependfilename", 
-			"no-index", 
-			"indexed", 
-			"loop", 
-			"keep-name", 
-			"format-keep-name",
-			"skip-folder-name"
+			Tags.AppendFilename, 
+			Tags.PrependFilename, 
+			Tags.NoIndex, 
+			Tags.Indexed,
+			Tags.NoLoop, 
+			Tags.Loop, 
+			Tags.KeepName, 
+			Tags.FormatKeepName,
+			Tags.SkipFolderName,
+			Tags.LegacyClassifier
 		};
-		public static string FileExtention = ".3dsetags";
+		public const string FileExtention = ".3dsetags";
 
 		public class ValidationError : Exception
 		{
 			public ValidationError(string message) : base(message) { }
 		}
 
-		public static List<string> GetTags(string folderPath, ICollection<string> cumulTags = null, bool useLegacy = false)
+		public static List<string> GetTags(string folderPath, ICollection<string> cumulTags = null)
 		{
-			return cumulTags == null ? LoadTags(folderPath) : CombineTags(cumulTags, LoadTags(folderPath), useLegacy);
+			return cumulTags == null ? LoadTags(folderPath) : CombineTags(cumulTags, LoadTags(folderPath));
 		}
 
 		public static List<string> LoadTags(string folderPath)
@@ -53,28 +69,40 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			return tags;
 		}
 
-		public static List<string> CombineTags(ICollection<string> tags1, ICollection<string> tags2, bool useLegacyClassifier = false)
+		public static List<string> CombineTags(ICollection<string> tags1, ICollection<string> tags2)
 		{
-			List<string> combinedTags = new List<string>(tags1);
-			if (tags2.Contains("no-index") || useLegacyClassifier && tags2.Contains("loop"))
+			List<string> combinedTags = new List<string>(tags1);			
+			if (tags1.Contains(Tags.LegacyClassifier) && tags2.Contains(Tags.Loop))
 			{
-				combinedTags.RemoveAll(item => item == "indexed");
+				combinedTags.RemoveAll(item => item == Tags.Indexed);
 			}
-			if (tags2.Contains("indexed"))
+
+			foreach (string tag in tags2)
 			{
-				combinedTags.RemoveAll(item => item == "no-index");
+				if (tag == Tags.NoIndex)
+				{
+					combinedTags.RemoveAll(item => item == Tags.Indexed);
+				}
+				else if (tag == Tags.NoLoop)
+				{
+					combinedTags.RemoveAll(item => item == Tags.Loop);
+				}
+				else if (tag == Tags.KeepName)
+				{
+					combinedTags.RemoveAll(item => item == Tags.FormatKeepName || item == Tags.Indexed);
+					combinedTags.Add(tag);
+				}
+				else if (tag == Tags.FormatKeepName)
+				{
+					combinedTags.RemoveAll(item => item == Tags.KeepName || item == Tags.Indexed);
+					combinedTags.Add(tag);
+				}
+				else
+				{
+					combinedTags.Add(tag);
+				}
 			}
-			if (tags2.Contains("keep-name"))
-			{
-				combinedTags.RemoveAll(item => item == "format-keep-name");
-				combinedTags.RemoveAll(item => item == "indexed");
-			}
-			if (tags2.Contains("format-keep-name"))
-			{
-				combinedTags.RemoveAll(item => item == "keep-name");
-				combinedTags.RemoveAll(item => item == "indexed");
-			}
-			combinedTags.AddRange(tags2);
+
 			return combinedTags;
 		}
 
@@ -157,20 +185,13 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 
 		public static string ApplyNameModifierTags(string itemName, ICollection<string> tags, string filename, int index)
 		{
-			if (tags.Contains("keep-name"))
+			if (tags.Contains(Tags.KeepName))
 			{
-				return tags.Contains("no-index") ? Path.GetFileNameWithoutExtension(filename) : Path.GetFileNameWithoutExtension(filename) + index.ToString("D2");
+				return Path.GetFileNameWithoutExtension(filename) + (tags.Contains(Tags.Indexed) ? index.ToString("D2") : "");
 			}
-			if (tags.Contains("format-keep-name"))
+			if (tags.Contains(Tags.FormatKeepName))
 			{
-				if (tags.Contains("no-index"))
-				{
-					return Utils.ToItemCase(Path.GetFileNameWithoutExtension(filename));
-				}
-				else
-				{
-					return Utils.ToItemCase(Path.GetFileNameWithoutExtension(filename)) + index.ToString("D2");
-				}
+				return Utils.ToItemCase(Path.GetFileNameWithoutExtension(filename)) + (tags.Contains(Tags.Indexed) ? index.ToString("D2") : "");
 			}
 
 			// Iterate in reverse, deeper tags should be applied first
@@ -179,34 +200,34 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			for (int i = tagsArray.Count() - 1; i >= 0; i--)
 			{
 				string tag = tagsArray[i];
-				Match appendMatch = Regex.Match(tag, @"append%%(?<appendValue>.+)");
+				Match appendMatch = Regex.Match(tag, @"" + Tags.Append + "%%(?<appendValue>.+)");
 				if (appendMatch.Success)
 				{
 					name += appendMatch.Groups["appendValue"].Value;
 				}
 
-				Match prependMatch = Regex.Match(tag, @"prepend%%(?<prependValue>.+)");
+				Match prependMatch = Regex.Match(tag, @"" + Tags.Prepend + "%%(?<prependValue>.+)");
 				if (prependMatch.Success)
 				{
 					name = prependMatch.Groups["prependValue"].Value + name;
 				}
 			}
 
-			if (tags.Contains("appendfilename"))
+			if (tags.Contains(Tags.AppendFilename))
 			{
 				name += Path.GetFileNameWithoutExtension(filename);
 			}
-			if (tags.Contains("prependfilename"))
+			if (tags.Contains(Tags.PrependFilename))
 			{
 				name = Path.GetFileNameWithoutExtension(filename) + name;
 			}
 
-			return tags.Contains("no-index") ? name : name + index.ToString("D2");
+			return tags.Contains(Tags.Indexed) ? name + index.ToString("D2") : name;
 		}
 
 		public static PrefabModifier GetPrefabModifier(ICollection<string> tags)
 		{
-			bool isLoop = tags.Contains("loop");
+			bool isLoop = tags.Contains(Tags.Loop);
 			float volume = -1.0f;
 			Utils.Tuple<float> threshold = null;
 

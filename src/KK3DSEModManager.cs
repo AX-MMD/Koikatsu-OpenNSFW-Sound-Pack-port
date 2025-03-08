@@ -9,38 +9,68 @@ using System.Text;
 using System.Linq;
 using ActionGame.MapSound;
 using IllusionMods.KoikatsuStudioCsv;
+using IllusionMods.Koikatsu3DSECategoryTool;
 
 namespace IllusionMods.Koikatsu3DSEModTools {
 
 	public class KK3DSEModManager
 	{
+		public const string BackupPath = "3DSECsvBackup";
+
 		public string modPath;
 		public string modName;
+		public string csvFolderPath;
 		public string prefabOutputPath;
 		public string sourcesPath;
 		public string basePrefabPath;
-		public bool useLegacyClassifier;
-		public int maxPerCategory;
 		public UnityEngine.GameObject basePrefab;
 
-		public KK3DSEModManager(string selectedPath, bool useLegacyClassifier = false, int maxPerCategory = int.MaxValue)
+		private bool disposed = false;
+
+
+		private static void AssertIsModPath(string modPath)
 		{
-			this.useLegacyClassifier = useLegacyClassifier;
-			this.maxPerCategory = maxPerCategory;
+			if (Directory.GetParent(modPath).Name != "Mods")
+			{
+				throw new Exception("Invalid mod path: " + modPath);
+			}
+		}
+
+		public static string GetSourceFolderPath(string path)
+		{
+			AssertIsModPath(path);
+			return Path.Combine(path, "Sources");
+		}
+
+		public static string GetPrefabFolderPath(string path)
+		{
+			AssertIsModPath(path);
+			return Path.Combine(path, "Prefab");
+		}
+
+		public static string GetBasePrefabPath(string path)
+		{
+			AssertIsModPath(path);
+			return Path.Combine(path, "base_3dse.prefab");
+		}
+
+		public KK3DSEModManager(string selectedPath)
+		{
 			this.modPath = Utils.GetModPath(selectedPath, true);
 			this.modName = Utils.GetModName(this.modPath);
-			this.prefabOutputPath = Path.Combine(this.modPath, "Prefab");
+			this.csvFolderPath = CsvUtils.GetItemDataFolder(this.modPath);
+			this.prefabOutputPath = GetPrefabFolderPath(selectedPath);
 			if (!Directory.Exists(prefabOutputPath))
 			{
 				Directory.CreateDirectory(prefabOutputPath);
 				Debug.Log("Created output directory: " + prefabOutputPath);
 			}
-			this.sourcesPath = Path.Combine(this.modPath, "Sources");
+			this.sourcesPath = GetSourceFolderPath(selectedPath);
 			if (!Directory.Exists(sourcesPath))
 			{
 				throw new Exception("Sources folder not found at path: " + sourcesPath);
 			}
-			this.basePrefabPath = Path.Combine(this.modPath, "base_3dse.prefab");
+			this.basePrefabPath = GetBasePrefabPath(selectedPath);
 			if (!File.Exists(this.basePrefabPath))
 			{
 				throw new Exception("Base prefab not found at path: " + this.basePrefabPath);
@@ -50,130 +80,23 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			{
 				throw new Exception("Base prefab not found at path: " + this.basePrefabPath);
 			}
+
+			this.BackupCSV();
 		}
 
-		public int GenerateCSV(bool create, bool isSidePanel, List<Category> categories)
+		public Utils.GenerationResult GenerateCSV(bool create, IList<Category> categories)
 		{
-			Utils.Tuple<string> paths = CsvUtils.GetCsvItemFilePaths(this.modPath);
-			string categoryPath = paths.Item1;
-			string itemListPath = paths.Item2;
-
-			foreach (string path in paths)
-			{
-				if (!File.Exists(path))
-				{
-					throw new Exception("CSV file not found at path: " + path);
-				}
-			}
-
-			Dictionary<string, CsvStudioCategory> newCategories = new Dictionary<string, CsvStudioCategory>();
-			Dictionary<string, CsvStudioCategory> oldCategories = new Dictionary<string, CsvStudioCategory>();
-			if (!(create && isSidePanel))
-			{
-				foreach (CsvStudioCategory category in CsvUtils.DeserializeCsvStudio<CsvStudioCategory>(categoryPath))
-				{
-					oldCategories[category.GetKey()] = category;
-				}
-			}
-
-			Dictionary<string, CsvStudioItem> newEntries = new Dictionary<string, CsvStudioItem>();
-			Dictionary<string, CsvStudioItem> oldEntries = new Dictionary<string, CsvStudioItem>();
-			if (!(create && isSidePanel))
-			{
-				foreach (CsvStudioItem entry in CsvUtils.DeserializeCsvStudio<CsvStudioItem>(itemListPath))
-				{
-					oldEntries[entry.GetKey()] = entry;
-				}
-			}
-
-			int id = 1;
-			if (!(create && isSidePanel) && oldEntries.Count > 0)
-			{
-				id = oldEntries.Values.Min(x => int.Parse(x.GetID())) + 1;
-			}
-
-			Utils.Tuple<string> info = CsvUtils.GetCsvModInfo(itemListPath);
-			string groupNumber = info.Item1;
-			string categoryNumber = info.Item2;
-
-			if (!(create && isSidePanel) && oldCategories.Count > 0)
-			{
-				categoryNumber = Utils.GetLastValue(oldCategories.Values).GetID();
-			}
-
-			categories.Sort((x, y) => string.Compare(x.author, y.author));
-
-			float categoryCount = 0.0f;
-			int totalCount = 0;
-			string progressName = create ? "Generating " + this.modName : "Updating " + this.modName;
-
-			foreach (Category category in categories)
-			{
-				string categoryKey = category.GetKey();
-				string currentCategoryNumber = categoryNumber;
-				string bundlePath = this.GetAssetBundlePath(categoryKey);
-
-				categoryCount++;
-				EditorUtility.DisplayProgressBar(
-					progressName, 
-					string.Format("Category ({0}/{1}): {2}", categoryCount, categories.Count, categoryKey),
-					(float)categoryCount / categories.Count
-				);
-
-				if (oldCategories.ContainsKey(categoryKey))
-				{
-					currentCategoryNumber = oldCategories[categoryKey].GetID();
-					newCategories[categoryKey] = oldCategories[categoryKey];
-				}
-				else
-				{
-					newCategories[categoryKey] = new CsvStudioCategory(currentCategoryNumber, categoryKey);
-					// Increment to the next category number, takes effect on next iteration
-					categoryNumber = (int.Parse(categoryNumber) + 1).ToString(new string('0', categoryNumber.Length));
-				}
-
-				foreach (StudioItemParam item in category.items)
-				{
-					totalCount++;
-					string itemKey = item.prefabName + currentCategoryNumber;
-					if (newEntries.ContainsKey(itemKey))
-					{
-						throw new Exception("Duplicate entry '"+ item.prefabName +"' for category '"+ categoryKey +"' with item name '"+ item.itemName +"'.");
-					}
-					else if (oldEntries.ContainsKey(itemKey))
-					{
-						// Update existing entry
-						CsvStudioItem entry = oldEntries[itemKey];
-						entry.groupNumber = groupNumber;
-						entry.categoryNumber = currentCategoryNumber;
-						entry.name = item.itemName;
-						entry.bundlePath = bundlePath;
-						entry.fileName = item.prefabName;
-						newEntries[itemKey] = entry;
-					}
-					else
-					{
-						// Add new entry
-						newEntries[itemKey] = new CsvStudioItem(id.ToString(), groupNumber, currentCategoryNumber, item.itemName, "", bundlePath, item.prefabName, "", false, false, false, false, false, false, false, false, false);
-						id++;
-					}
-				}
-			}
-
-			CsvUtils.WriteToCsv(categoryPath, newCategories.Values.ToList());
-			CsvUtils.WriteToCsv(itemListPath, newEntries.Values.ToList());
-			Debug.Log("CSV files generated successfully.");
-			return totalCount;
+			return CsvUtils.GenerateCSV(this.modPath, create, categories);
 		}
 
-		public int GeneratePrefabs(bool create, bool isSidePanel, List<Category> categories)
+		public Utils.GenerationResult GeneratePrefabs(bool create, IList<Category> categories)
 		{
 			if (!Directory.Exists(this.prefabOutputPath))
 			{
 				Directory.CreateDirectory(this.prefabOutputPath);
 				Debug.Log("Created output directory: " + this.prefabOutputPath);
 			}
-			else if (create && isSidePanel)
+			else if (create)
 			{
 				// Clear the output directory
 				DirectoryInfo directoryInfo = new DirectoryInfo(this.prefabOutputPath);
@@ -188,31 +111,30 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 				Debug.Log("Cleared output directory: " + this.prefabOutputPath);
 			}
 
-			int prefabTotalCount = 0;
+			HashSet<string> oldPrefabs = new HashSet<string>();
+			string[] oldPrefabPaths = Directory.GetFiles(this.prefabOutputPath, "*.prefab", SearchOption.AllDirectories);
+			foreach (string oldPrefabPath in oldPrefabPaths)
+			{
+				oldPrefabs.Add(oldPrefabPath.Replace("\\", "/"));
+			}
+
+			int prefabCreateCount = 0;
+			int prefabUpdateCount = 0;
 			int categoryCount = 0;
+			int totalCategories = categories.Where(x => x.items.Count > 0).Count();
 			string progressName = create ? "Generating " + this.modName : "Updating " + this.modName;
 
-			HashSet<string> oldPrefabs = new HashSet<string>(Directory.GetFiles(this.prefabOutputPath, "*.prefab", SearchOption.AllDirectories));
-
-			foreach (Category category in categories)
-			{
-				int itemCount = 0;
+			foreach (Category category in categories.Where(x => x.items.Count > 0))
+			{	
 				string categoryOutputPath = Path.Combine(this.prefabOutputPath, category.GetKey()).Replace("\\", "/");
-				string assetBundlePath = this.GetAssetBundlePath(category.GetKey());
-
-				categoryCount++;
-				EditorUtility.DisplayProgressBar(
-					progressName, 
-					string.Format("Category ({0}/{1}): {2} -> ({3}/{4})", categoryCount, categories.Count, category.GetKey(), itemCount, category.items.Count),
-					(float)itemCount / category.items.Count
-				);
+				string assetBundlePath = Utils.GetAssetBundlePath(this.modPath, category.GetKey());
 
 				if (!Directory.Exists(categoryOutputPath))
 				{
 					Directory.CreateDirectory(categoryOutputPath);
 					Debug.Log("Created output directory: " + categoryOutputPath);
 				}
-				else if (create && isSidePanel)
+				else if (create)
 				{
 					// Clear the output directory
 					DirectoryInfo directoryInfo = new DirectoryInfo(categoryOutputPath);
@@ -227,21 +149,32 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 					Debug.Log("Cleared output directory: " + categoryOutputPath);
 				}
 
+				int itemCount = 0;
+				categoryCount++;
 				foreach (StudioItemParam file in category.items)
 				{
+					itemCount++;
+					EditorUtility.DisplayProgressBar(
+						progressName, 
+						string.Format("Category ({0}/{1}): {2} -> ({3}/{4})", categoryCount, totalCategories, category.GetKey(), itemCount, category.items.Count),
+						(float)itemCount / category.items.Count
+					);
+
 					string newPrefabPath = Path.Combine(categoryOutputPath, file.prefabName + ".prefab").Replace("\\", "/");
-					GameObject newObject;
+					GameObject prefab;
 
 					if (oldPrefabs.Contains(newPrefabPath))
 					{
 						oldPrefabs.Remove(newPrefabPath);
-						//update the existing prefab
-						newObject = (GameObject)AssetDatabase.LoadAssetAtPath(newPrefabPath, typeof(GameObject));
+						prefab = (GameObject)PrefabUtility.InstantiatePrefab(
+							AssetDatabase.LoadAssetAtPath(newPrefabPath, typeof(GameObject))
+						);
+						prefabUpdateCount++;
 					}
 					else
 					{
-						//create a new prefab, if there is already a prefab with the same name, it will be overwritten
-						newObject = (GameObject)PrefabUtility.InstantiatePrefab(this.basePrefab);
+						prefab = (GameObject)PrefabUtility.InstantiatePrefab(this.basePrefab);
+						prefabCreateCount++;
 					}
 
 					// Load the AudioClip from the .wav file
@@ -252,7 +185,8 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 					}
 
 					// Assign the AudioClip to the SEComponent
-					SEComponent seComponent = newObject.GetComponent<SEComponent>();
+					SEComponent seComponent = prefab.GetComponent<SEComponent>();
+					EditorUtility.SetDirty(seComponent);
 					if (seComponent != null)
 					{
 						seComponent._clip = audioClip;
@@ -274,8 +208,8 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 						throw new Exception("SEComponent not found on the instantiated prefab.");
 					}
 
-					PrefabUtility.CreatePrefab(newPrefabPath, newObject);
-					UnityEngine.Object.DestroyImmediate(newObject);
+					PrefabUtility.CreatePrefab(newPrefabPath, prefab);
+					UnityEngine.Object.DestroyImmediate(prefab);
 
 					// Set the asset bundle name in the .meta file
 					string metaFilePath = newPrefabPath + ".meta";
@@ -287,158 +221,110 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 					{
 						throw new Exception("Meta file not found for prefab: " + newPrefabPath);
 					}
-
-					itemCount++;
-					EditorUtility.DisplayProgressBar(
-						progressName, 
-						string.Format("Category ({0}/{1}): {2} -> ({3}/{4})", categoryCount, categories.Count, category.GetKey(), itemCount, category.items.Count),
-						(float)itemCount / category.items.Count
-					);
 				}
-				prefabTotalCount += itemCount;
-				itemCount = 0;
 			}
 			// Delete any old prefabs that were not updated
 			foreach (string oldPrefab in oldPrefabs)
 			{
 				File.Delete(oldPrefab);
+				File.Delete(oldPrefab + ".meta");
 			}
-			return prefabTotalCount;
+
+			// Delete empty directories
+			foreach (string categoryOutputPath in Directory.GetDirectories(this.prefabOutputPath))
+			{
+				if (Directory.GetFiles(categoryOutputPath).Length == 0)
+				{
+					Directory.Delete(categoryOutputPath);
+					File.Delete(categoryOutputPath + ".meta");
+				}
+			}
+			
+			return new Utils.GenerationResult
+			{
+				createCount = prefabCreateCount,
+				updateCount = prefabUpdateCount,
+				deleteCount = oldPrefabs.Count
+			};
 		}
 
-		public List<Category> GetCategories()
+		public void BackupCSV()
 		{
-			List<Category> categories = new List<Category>();
-			string[] rootFolders = Directory.GetDirectories(this.sourcesPath);
-			if (rootFolders.Length == 0)
+			string backupPath = Path.Combine(this.csvFolderPath, BackupPath);
+			if (!Directory.Exists(backupPath))
 			{
-				categories.Add(new Category("Default", "", this.GetCategoryFiles(this.sourcesPath, new string[] { "keep-name" })));
+				Directory.CreateDirectory(backupPath);
 			}
 			else
 			{
-				foreach (string rootFolder in rootFolders)
+				foreach (string file in Directory.GetFiles(backupPath, "*.csv"))
 				{
-					string rootFolderName = Path.GetFileName(rootFolder);
-					List<string> tags = TagManager.GetTags(rootFolder, new string[] { "indexed" }, this.useLegacyClassifier);
-					if (rootFolderName.StartsWith("[") && rootFolderName.EndsWith("]") && Directory.GetDirectories(rootFolder).Length > 0)
-					{
-						categories.Add(new Category(rootFolderName));
-						foreach (string subfolder in Directory.GetDirectories(rootFolder))
-						{
-							categories.AddRange(this.GetCategoriesRecursive(subfolder, tags));
-						}
-					}
-					else
-					{
-						categories.AddRange(this.GetCategoriesRecursive(rootFolder, tags));
-					}
+					File.Delete(file);
+					File.Delete(file + ".meta");
 				}
 			}
-			return categories;
-		}
 
-		private List<Category> GetCategoriesRecursive(string folder, ICollection<string> cumulTags = null)
-		{
-			string folderName = Path.GetFileName(folder);
-			Match match = Regex.Match(folderName, @"^(?<categoryName>[^()]+)(\((?<author>[^)]+)\))?$");
-			string categoryName = this.useLegacyClassifier ? match.Groups["categoryName"].Value.Trim() : folderName;
-			string author = match.Groups["author"].Value.Trim();
-
-			List<string> tags = TagManager.GetTags(folder, cumulTags, this.useLegacyClassifier);
-			List<Category> categories = new List<Category>();
-
-			if (!this.useLegacyClassifier || !string.IsNullOrEmpty(author))
+			foreach (string file in Directory.GetFiles(this.csvFolderPath, "*.csv"))
 			{
-				if (tags.Contains("skip-folder-name"))
-				{
-					tags.RemoveAll(item => item == "skip-folder-name");
-					categories.Add(new Category(categoryName, author, this.GetCategoryFiles(folder, tags)));
-				}
-				else
-				{
-					categories.Add(new Category(categoryName, author, this.GetCategoryFiles(folder, tags, Utils.ToItemCase(categoryName))));
-				}
-				return categories;
+				File.Copy(file, Path.Combine(backupPath, Path.GetFileName(file)), true);
 			}
-			else
-			{
-				tags.RemoveAll(item => item == "skip-folder-name");
-				foreach (string subfolder in Directory.GetDirectories(folder))
-				{
-					categories.AddRange(this.GetCategoriesRecursive(subfolder, tags));
-				}
-			}
-
-			return categories;
 		}
 
-		private List<StudioItemParam> GetCategoryFiles(string folder, ICollection<string> cumulTags, string pathName = "")
+		public void RestoreBackupCSV()
 		{
-			List<StudioItemParam> items = new List<StudioItemParam>();
-			List<string> entries = new List<string>(Directory.GetFileSystemEntries(folder));
-			entries.Sort(new NaturalSortComparer());
-
-			int index = 1;
-			foreach (string entry in entries)
+			string backupPath = Path.Combine(this.csvFolderPath, BackupPath);
+			if (Directory.Exists(backupPath))
 			{
-				if (Directory.Exists(entry))
+				foreach (string file in Directory.GetFiles(this.csvFolderPath, "*.csv"))
 				{
-					string folderName = Path.GetFileName(entry);
-					List<string> tags = TagManager.GetTags(entry, cumulTags, this.useLegacyClassifier);
-
-					if (this.useLegacyClassifier)
-					{
-						if (folderName.ToUpper().Contains("FX") || folderName.ToUpper().Contains("ORIGINAL"))
-						{
-							continue;
-						}
-						else if (folderName.ToUpper() == "NORMAL")
-						{
-							tags.Add("skip-folder-name");
-						}
-					}
-
-					if (tags.Contains("skip-folder-name"))
-					{
-						tags.Remove("skip-folder-name");
-						items.AddRange(this.GetCategoryFiles(entry, tags, pathName));
-					}
-					else if (folderName.ToUpper() == folderName)
-					{
-						items.AddRange(this.GetCategoryFiles(entry, tags, pathName + folderName));
-					}
-					else
-					{
-						items.AddRange(this.GetCategoryFiles(entry, tags, pathName + Utils.ToItemCase(folderName)));
-					}
+					File.Delete(file);
+					File.Delete(file + ".meta");
 				}
-				else if (AudioProcessor.IsValidAudioFile(entry) && index <= this.maxPerCategory)
+
+				foreach (string file in Directory.GetFiles(backupPath, "*.csv"))
 				{
-					items.Add(new StudioItemParam(
-						this.BuildItemName(pathName, cumulTags, entry, index++), 
-						entry, 
-						TagManager.GetPrefabModifier(cumulTags)
-					));
+					File.Copy(file, Path.Combine(this.csvFolderPath, Path.GetFileName(file)), true);
 				}
 			}
-			return items;
 		}
 
-		private string BuildItemName(string pathName, ICollection<string> tags, string filename, int index)
+		public void DeleteBackupCSV()
 		{
-			if (this.useLegacyClassifier && (Path.GetFileNameWithoutExtension(filename).ToLower().Contains("loop") || Path.GetFileNameWithoutExtension(filename).ToLower().Contains("full")) && !tags.Contains("loop"))
+			string backupPath = Path.Combine(this.csvFolderPath, BackupPath);
+			if (Directory.Exists(backupPath))
 			{
-				throw new Exception("Looping sound file detected: " + filename + ". Please add the 'loop' tag to the folder.");
+				foreach (string file in Directory.GetFiles(backupPath, "*.csv"))
+				{
+					File.Delete(file);
+					File.Delete(file + ".meta");
+				}
+				Directory.Delete(backupPath);
+				File.Delete(backupPath + ".meta");
 			}
-
-			string name = string.IsNullOrEmpty(pathName) ? Utils.ToItemCase(Path.GetFileNameWithoutExtension(filename)) : pathName;
-			return TagManager.ApplyNameModifierTags(name, tags, filename, index);
 		}
 
-		private string GetAssetBundlePath(string categoryKey)
-		{
-			return "studio/" + Utils.ToZipmodFileName(Utils.GetModGuid(this.modPath)) + "/" + Utils.ToZipmodFileName(categoryKey) + "/bundle.unity3d";
-		}
+		public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    this.DeleteBackupCSV();
+                }
+
+                disposed = true;
+            }
+        }
+
+        ~KK3DSEModManager()
+        {
+            Dispose(false);
+        }
 	}
-
 }

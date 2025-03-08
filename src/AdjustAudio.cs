@@ -170,6 +170,7 @@ public class AdjustAudioWindow : EditorWindow
 					}
 				}
 
+				EditorUtility.ClearProgressBar();
 				if (!skipAssetReload && fileCount > 0)
 				{
 					AssetDatabase.Refresh();
@@ -180,11 +181,8 @@ public class AdjustAudioWindow : EditorWindow
 			catch (Exception e)
 			{
 				Utils.LogErrorWithTrace(e);
-				EditorUtility.DisplayDialog("Error", e.Message, "OK");
-			}
-			finally 
-			{
 				EditorUtility.ClearProgressBar();
+				EditorUtility.DisplayDialog("Error", e.Message, "OK");
 			}
 		}
 
