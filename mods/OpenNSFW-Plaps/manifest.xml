@@ -1,9 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest schema-ver="1">
-  <guid>com.AX_MMD.OpenNSFW-Plaps</guid>
-  <name>OpenNSFW-Plaps</name>
-  <version>1.5</version>
+  <guid>com.AX_MMD.OpenNSFW-01-Plaps</guid>
+  <name>OpenNSFW-01-Plaps</name>
+  <version>2.0</version>
   <author>AX_MMD</author>
-  <description>A port of the OpenNSFW catalog (Plaps)</description>
-  <website>https://github.com/AX-MMD</website>
+  <description>
+  </description>
+  <website>
+  </website>
+  <muid>29664</muid>
 </manifest>

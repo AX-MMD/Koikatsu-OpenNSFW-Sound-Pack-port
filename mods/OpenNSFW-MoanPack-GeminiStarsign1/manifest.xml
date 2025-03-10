@@ -1,9 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest schema-ver="1">
-  <guid>com.AX_MMD.OpenNSFW-MoanPack-GeminiStarSign1</guid>
+  <guid>com.AX_MMD.OpenNSFW-MoanPackF-GeminiStarSign1</guid>
   <name>OpenNSFW-MoanPack[F]-GeminiStarSign1</name>
-  <version>1.1</version>
+  <version>2.0</version>
   <author>AX_MMD</author>
-  <description>A port of the OpenNSFW MoanPack[F] - GeminiStarSign1</description>
-  <website>https://github.com/AX-MMD</website>
+  <description>
+  </description>
+  <website>
+  </website>
+  <muid>29664</muid>
 </manifest>
