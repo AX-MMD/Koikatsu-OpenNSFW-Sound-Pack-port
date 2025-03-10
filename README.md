@@ -1,32 +1,41 @@
 # Koikatsu OpenNSFW Sound Pack port
 
-[ディープル 日本語](#コイカツ-opennsfw-sound-pack-移植)
+[DeepL翻訳 日本語](#コイカツ-opennsfw-sound-pack-移植)
 
 This is a port of the [OpenNSFW Sound Pack](https://opennsfw.carrd.co/) as a mod for Koikatsu Studio. The pack contains various types of NSFW sounds from various creators, so I will divide it into multiple mods.
 
-As of 2025-02-07, contains:
-* Partial `OpenNSFW/Plaps/`
-* Partial `OpenNSFW/Oral - Mouth/Recordings`
-* Complete `OpenNSFW/Wet Sounds`
+As of 2025-03-10, contains:
+
+OpenNSFW main library: Complete
+* `OpenNSFW/Plaps/`
+* `OpenNSFW/Oral - Mouth`
+* `OpenNSFW/Cum`
+* `OpenNSFW/Body Noises`
+* `OpenNSFW/Wet Sounds`
+* `OpenNSFW/In & Out`
+* `OpenNSFW/Wet Sounds`
+* `OpenNSFW/Materials`
+
+OpenNSFW VA packs: Partial
 * Complete `MoanPack[F]-Rain_va_`
 * Complete `MoanPack[F]-GeminiStarSign1`
 * Complete `VoicePack[M]-Lewddmon`
 
-Each sound clip has been adapted into a 3DSE Studio Item to use with Timeline. They can be accessed in Charastudio's menu `Add->Item->3D SFX` or via the search function (`opennsfw`).
+Each sound clip has been adapted into a 3DSE Studio Item to use with Timeline. They can be accessed in Charastudio's menu `Add->Item->OpenNSFW` or via the search function (`opennsfw`).
 
-In `Add->Item->3D SFX` you will see multiple sub-menus in the following form: 
+In `Add->Item->OpenNSFW` you will see multiple sub-menus in the following form: 
 
-> Category [Author Name][OpenNSFW]
+> Category [Author Name]
 
 You will also see these tags on each item when using the search function.
     
 Example:
 
-> Plaps [LeHornySFX3D][OpenNSFW]
+> HardPlaps [LeHornySFX3D]
 
-> Plaps [Author A][OpenNSFW]
+> SoftPlaps [Author A]
 
-> Squirt [Author B][OpenNSFW]
+> Squirt [Author B]
 
 This is to help with credit attribution if you want to publish works, commercial or not, as required by the terms of the [OpenNSFW Sound Pack](https://opennsfw.carrd.co/).
 
@@ -68,29 +77,37 @@ Releases page: https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/relea
 
 これは[OpenNSFW Sound Pack](https://opennsfw.carrd.co/)をコイカツスタジオのMODとして移植したものです。このパックには様々なクリエイターの様々なタイプのNSFWサウンドが収録されているので、複数のMODに分けて紹介します。
 
-2025-02-15現在、以下を含む：
-* パーシャル `OpenNSFW/Plaps` (衝撃音)。
-* パーシャル `OpenNSFW/Oral - Mouth/Recordings` (口腔音)。
-* を含む `OpenNSFW/Wet Sounds` (湿った音)
-* を含む `MoanPack[F]-Rain_va_` (呻き声)。
-* を含む `MoanPack[F]-GeminiStarSign1` (呻き声)。
-* を含む `VoicePack[M]-Lewddmon` (男 ボイスパック)。
+2025-03-10 年現在、このパッケージには以下が含まれている：
 
-各サウンドクリップはタイムラインで使用できるように3DSE Studioアイテムに変換されています。これらはCharastudioのメニュー `Add->アイテム->3DSE`または検索機能(`opennsfw`)からアクセスできます。
+OpenNSFWメインライブラリ： 完全版
+* `OpenNSFW/Plaps/`(衝撃音)
+* `OpenNSFW/Oral - Mouth` (口腔音)
+* `OpenNSFW/Cum` (性体液)
+* `OpenNSFW/Body Noises` (ボディノイズ)
+* `OpenNSFW/Wet Sounds` (湿った音)
+* `OpenNSFW/In & Out` (内と外の動き)
+* `OpenNSFW/Materials` (素材と付属品の音)
 
-`Add->アイテム->3DSE` では、以下のような形で複数のサブメニューが表示されます： 
+OpenNSFW 声優 ライブラリ: 部分的
+* 完全版 `MoanPack[F]-Rain_va_` (呻き声)。
+* 完全版 `MoanPack[F]-GeminiStarSign1` (呻き声)。
+* 完全版 `VoicePack[M]-Lewddmon` (男 ボイスパック)。
 
-> カテゴリ [著者名][OpenNSFW]
+各サウンドクリップはタイムラインで使用できるように3DSE Studioアイテムに変換されています。これらはCharastudioのメニュー `Add->アイテム->OpenNSFW`または検索機能(`opennsfw`)からアクセスできます。
+
+`Add->アイテム->OpenNSFW` では、以下のような形で複数のサブメニューが表示されます： 
+
+> カテゴリ [著者名]
 
 また、検索機能を使用すると、各アイテムにこれらのタグが表示されます。
 
 例：
 
-> Plaps [LeHornySFX3D][OpenNSFW]
+> Plaps [LeHornySFX3D]
 
-> Plaps [Lewd K. Sound][OpenNSFW]
+> Plaps [Lewd K. Sound]
 
-> Squirt [著者B][OpenNSFW]
+> Squirt [著者B]
 
 これは、[OpenNSFW Sound Pack](https://opennsfw.carrd.co/)の条件に従って、営利・非営利を問わず、作品を公開したい場合に、クレジットの帰属を助けるためのものです。
 
