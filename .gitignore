@@ -1,3 +1,9 @@
 *.unity3d
 /releases
 /zipmods
+// all .prefab files in mods/*/Prefab/ and subfolders
+mods/*/Prefab/**/*.prefab
+*.meta
+*.zip
+*.wav
+*.mp3
