@@ -302,7 +302,7 @@ namespace IllusionMods.KoikatsuStudioCsv
 				return _listFiles.Length > 0 ? _listFiles[0] : null;
 			}
 
-			public T GetFirstEntry<T>() where T : BaseCsvStudio
+			public List<T> GetEntries<T>() where T : BaseCsvStudio
 			{
 				string path = null;
 				if (typeof(T) == typeof(StudioGroup))
@@ -322,12 +322,12 @@ namespace IllusionMods.KoikatsuStudioCsv
 					throw new InvalidOperationException("Invalid type: " + typeof(T).ToString());
 				}
 
-				foreach (T entry in DeserializeCsvStudio<T>(path))
-				{
-					return entry;
-				}
+				return DeserializeCsvStudio<T>(path);
+			}
 
-				return null;
+			public T GetFirstEntry<T>() where T : BaseCsvStudio
+			{
+				return GetEntries<T>().FirstOrDefault();
 			}
 
 			public Utils.Tuple<string> GetModInfo(bool raise_exec = false)

@@ -15,33 +15,7 @@ public class GenerateFromSource : MonoBehaviour
 	[MenuItem("Assets/3DSE/Generation Tools/Update CSV From Source", true)]
 	private static bool ValidateGenerate()
 	{
-		return GetSelected3DSEModPaths().Length > 0;
-	}
-
-	private static string[] GetSelected3DSEModPaths()
-	{
-		List<string> found = new List<string>();
-		string selectedPath;
-
-		foreach (string guid in Selection.assetGUIDs)
-		{
-			selectedPath = AssetDatabase.GUIDToAssetPath(guid);
-			if (Utils.IsValid3DSEModPath(selectedPath))
-			{
-				found.Add(selectedPath);
-			}
-		}
-
-		if (found.Count == 0 && Selection.activeObject != null)
-		{
-			selectedPath = AssetDatabase.GetAssetPath(Selection.activeObject);
-			if (AssetDatabase.IsValidFolder(selectedPath) && Utils.IsValid3DSEModPath(selectedPath))
-			{
-				found.Add(selectedPath);
-			}
-		}
-
-		return found.ToArray();
+		return Utils.GetSelected3DSEModPaths().Count > 0;
 	}
 
 	[MenuItem("Assets/3DSE/Generation Tools/Create From Source")]
@@ -78,7 +52,7 @@ public class GenerateFromSource : MonoBehaviour
 			title = "CSV " + title;
 		}
 
-		string[] selectedPaths = GetSelected3DSEModPaths();
+		IEnumerable<string> selectedPaths = Utils.GetSelected3DSEModPaths();
 		Utils.GenerationResult result = new Utils.GenerationResult {};
 
 		if (create)

@@ -152,7 +152,6 @@ public class Modify3DSEModWindow : EditorWindow
 		}
 
 		CsvUtils.StudioGroup group = itemFileAgg.GetFirstEntry<CsvUtils.StudioGroup>();
-		itemFileAgg.GetFirstEntry<CsvUtils.StudioGroup>();
 		if (group == null)
 		{
 			Debug.LogWarning("Empty ItemGroup file: " + itemFileAgg.groupFiles[0]);
