@@ -13,7 +13,6 @@ OpenNSFW main library: Complete
 * `OpenNSFW/Body Noises`
 * `OpenNSFW/Wet Sounds`
 * `OpenNSFW/In & Out`
-* `OpenNSFW/Wet Sounds`
 * `OpenNSFW/Materials`
 
 OpenNSFW VA packs: Partial
