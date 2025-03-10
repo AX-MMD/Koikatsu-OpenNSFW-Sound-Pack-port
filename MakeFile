@@ -12,8 +12,8 @@ release:
         echo "Error: Release version not specified. Use 'make release version=x.y'"; \
         exit 1; \
     fi
-    @echo "Building zipmods and release zips for version $(version)..."
-    python $(project_path)/src/build_zipmods.py --release $(version)
+    @echo "Building release zips for version $(version)..."
+    python $(project_path)/src/build_release.py $(version)
 
 .PHONY: all
 all: build

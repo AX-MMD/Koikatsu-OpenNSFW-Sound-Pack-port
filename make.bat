@@ -22,8 +22,8 @@ GOTO error
         GOTO :EOF
     )
     SET release_version=%2
-    echo "Building zipmods and release zips for version %release_version%..."
-    python %project_path%src/build_zipmods.py --release %release_version%
+    echo "Building release zips for version %release_version%..."
+    python %project_path%src/build_release.py %release_version%
     GOTO :EOF
 
 :error
