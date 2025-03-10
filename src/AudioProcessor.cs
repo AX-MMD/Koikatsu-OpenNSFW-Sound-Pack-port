@@ -20,11 +20,11 @@ namespace IllusionMods.Koikatsu3DSEModTools
 		{
 			if (Path.GetExtension(filePath).ToLower() == ".wav")
 			{
-				AdjustSilenceWav(filePath, silenceDurationMs, auto, silenceThreshold, overwrite);
+				AdjustSilenceWav(Path.GetFullPath(filePath), silenceDurationMs, auto, silenceThreshold, overwrite);
 			}
 			else if (Path.GetExtension(filePath).ToLower() == ".mp3")
 			{
-				ProcessMp3(filePath, wavPath => AdjustSilenceWav(wavPath, silenceDurationMs, auto, silenceThreshold, true), overwrite);
+				ProcessMp3(Path.GetFullPath(filePath), wavPath => AdjustSilenceWav(Path.GetFullPath(wavPath), silenceDurationMs, auto, silenceThreshold, true), overwrite);
 			}
 			else
 			{
@@ -65,15 +65,7 @@ namespace IllusionMods.Koikatsu3DSEModTools
 					};
 
 					ConcatenatingSampleProvider concatenated = new ConcatenatingSampleProvider(new ISampleProvider[] { offsetProvider, reader });
-					try
-					{
-						WaveFileWriter.CreateWaveFile(outputFilePath, new SampleToWaveProvider(concatenated));
-					}
-					catch (DirectoryNotFoundException) 
-					{
-						outputFilePath = filePath + "(1)";
-						WaveFileWriter.CreateWaveFile (outputFilePath, new SampleToWaveProvider (concatenated));
-					}
+					WaveFileWriter.CreateWaveFile(outputFilePath, new SampleToWaveProvider(concatenated));
 				}
 				else if (silenceAdjustement < -1)
 				{
@@ -82,15 +74,7 @@ namespace IllusionMods.Koikatsu3DSEModTools
 					int bytesToTrim = Math.Abs(silenceAdjustement) * bytesPerMillisecond;
 
 					reader.Position = bytesToTrim;
-					try
-					{
-						WaveFileWriter.CreateWaveFile(outputFilePath, reader);
-					}
-					catch (DirectoryNotFoundException)
-					{
-						outputFilePath = filePath+"(1)";
-						WaveFileWriter.CreateWaveFile(outputFilePath, reader);
-					}
+					WaveFileWriter.CreateWaveFile(outputFilePath, reader);
 				}
 				else
 				{
@@ -101,12 +85,7 @@ namespace IllusionMods.Koikatsu3DSEModTools
 
 			if (overwrite && File.Exists(outputFilePath))
 			{
-				File.Delete(filePath);
-				File.Move(outputFilePath, filePath);
-				if (File.Exists(outputFilePath + ".meta"))
-				{
-					File.Move(outputFilePath + ".meta", filePath + ".meta");
-				}
+				Utils.FileReplace(filePath, outputFilePath);
 			}
 		}
 
@@ -118,11 +97,11 @@ namespace IllusionMods.Koikatsu3DSEModTools
 			}
 			else if (Path.GetExtension(filePath).ToLower() == ".wav")
 			{
-				AdjustVolumePercentWav(filePath, percent, overwrite);
+				AdjustVolumePercentWav(Path.GetFullPath(filePath), percent, overwrite);
 			}
 			else if (Path.GetExtension(filePath).ToLower() == ".mp3")
 			{
-				ProcessMp3(filePath, wavPath => AdjustVolumePercentWav(wavPath, percent, true), overwrite);
+				ProcessMp3(Path.GetFullPath(filePath), wavPath => AdjustVolumePercentWav(Path.GetFullPath(wavPath), percent, true), overwrite);
 			}
 		}
 
@@ -145,12 +124,7 @@ namespace IllusionMods.Koikatsu3DSEModTools
 
 			if (overwrite && File.Exists(outputPath))
 			{
-				File.Delete(filePath);
-				File.Move(outputPath, filePath);
-				if (File.Exists(outputPath + ".meta"))
-				{
-					File.Move(outputPath + ".meta", filePath + ".meta");
-				}
+				Utils.FileReplace(filePath, outputPath);
 			}
 		}
 
@@ -158,11 +132,11 @@ namespace IllusionMods.Koikatsu3DSEModTools
 		{
 			if (Path.GetExtension(inputFilePath).ToLower() == ".wav")
 			{
-				NormalizeVolumeWav(inputFilePath, targetRmsDb, overwrite);
+				NormalizeVolumeWav(Path.GetFullPath(inputFilePath), targetRmsDb, overwrite);
 			}
 			else if (Path.GetExtension(inputFilePath).ToLower() == ".mp3")
 			{
-				ProcessMp3(inputFilePath, wavPath => NormalizeVolumeWav(wavPath, targetRmsDb, true), overwrite);
+				ProcessMp3(Path.GetFullPath(inputFilePath), wavPath => NormalizeVolumeWav(Path.GetFullPath(wavPath), targetRmsDb, true), overwrite);
 			}
 		}
 
@@ -217,12 +191,7 @@ namespace IllusionMods.Koikatsu3DSEModTools
 
 			if (overwrite && File.Exists(outputFilePath))
 			{
-				File.Delete(inputFilePath);
-				File.Move(outputFilePath, inputFilePath);
-				if (File.Exists(outputFilePath + ".meta"))
-				{
-					File.Move(outputFilePath + ".meta", inputFilePath + ".meta");
-				}
+				Utils.FileReplace(inputFilePath, outputFilePath);
 			}
 		}
 
@@ -254,32 +223,6 @@ namespace IllusionMods.Koikatsu3DSEModTools
 				File.Delete(tempWavPath);
 				File.Delete(tempWavPath + ".meta");
 			}
-		}
-
-		public static string ConvertToWav(string filePath)
-		{
-			if (Path.GetExtension(filePath).ToLower() == ".wav")
-			{
-				return filePath;
-			}
-
-			string output = Path.ChangeExtension(filePath, ".wav");
-
-			IWaveProvider waveProvider;
-			using (var reader = GetReader(filePath, out waveProvider))
-			{
-				using (WaveFileWriter writer = new WaveFileWriter(output, waveProvider.WaveFormat))
-				{
-					byte[] buffer = new byte[1024];
-					int bytesRead;
-					while ((bytesRead = waveProvider.Read(buffer, 0, buffer.Length)) > 0)
-					{
-						writer.Write(buffer, 0, bytesRead);
-					}
-				}
-			}
-
-			return output;
 		}
 
 		public static bool IsValidAudioFile(string filePath)
@@ -363,7 +306,7 @@ namespace IllusionMods.Koikatsu3DSEModTools
 				name += "_" + DateTime.Now.ToString("yyyyMMddHHmmss");
 			}
 
-			return Path.Combine(Path.GetDirectoryName(filePath), name + Path.GetExtension(filePath));
+			return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(filePath), name + Path.GetExtension(filePath)));
 		}
 	}
 

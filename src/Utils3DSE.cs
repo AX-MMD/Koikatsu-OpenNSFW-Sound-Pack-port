@@ -565,6 +565,49 @@ public static class Utils
 	{
 		Debug.LogError(FormatErrorWithStackTrace(e));
 	}
+
+	public static void FileMove(string sourcePath, string destPath)
+	{
+		File.Move(Path.GetFullPath(sourcePath), Path.GetFullPath(destPath));
+		if (File.Exists(sourcePath + ".meta"))
+		{
+			File.Move(Path.GetFullPath(sourcePath + ".meta"), Path.GetFullPath(destPath + ".meta"));
+		}
+	}
+
+	public static void FileReplace(string sourcePath, string destPath)
+	{
+		File.Delete(Path.GetFullPath(destPath));
+		FileMove(sourcePath, destPath);
+	}
+
+	public static void FileDelete(string path)
+	{
+		File.Delete(Path.GetFullPath(path));
+		if (File.Exists(path + ".meta"))
+		{
+			File.Delete(Path.GetFullPath(path + ".meta"));
+		}
+	}
+
+	public static string FullPathToAssetPath(string fullPath)
+    {
+        // Ensure the path uses forward slashes
+        fullPath = fullPath.Replace("\\", "/");
+
+        // Find the index of the "Assets" folder in the full path
+        int index = fullPath.IndexOf("Assets");
+
+        if (index < 0)
+        {
+            Debug.LogError("The path does not contain an 'Assets' folder: " + fullPath);
+            return null;
+        }
+
+        // Return the substring starting from the "Assets" folder
+        return fullPath.Substring(index);
+    }
+	
 }
 
 }

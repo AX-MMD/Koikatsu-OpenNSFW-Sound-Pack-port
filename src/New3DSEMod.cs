@@ -354,7 +354,7 @@ public class Modify3DSEModWindow : EditorWindow
 			if (itemGroupName == "3DSE")
 			{
 				group.Add(new CsvUtils.StudioGroup("11", "3DSE" ));
-				File.Move(
+				Utils.FileMove(
 					Path.Combine(listPath, "ItemList_00_11_01.csv"), 
 					Path.Combine(listPath, "ItemList_00_11_" + fields.muid + "01" + ".csv")
 				);
@@ -362,11 +362,11 @@ public class Modify3DSEModWindow : EditorWindow
 			else
 			{
 				group.Add(new CsvUtils.StudioGroup(fields.muid, itemGroupName));
-				File.Move(
+				Utils.FileMove(
 					Path.Combine(listPath, "ItemCategory_00_11.csv"), 
 					Path.Combine(listPath, "ItemCategory_00_" + fields.muid + ".csv")
 				);
-				File.Move(
+				Utils.FileMove(
 					Path.Combine(listPath, "ItemList_00_11_01.csv"),
 					Path.Combine(listPath, "ItemList_00_" + fields.muid + "_01.csv")
 				);
@@ -413,11 +413,11 @@ public class Modify3DSEModWindow : EditorWindow
 					LambdaReplace = (string oldName) => Regex.Replace(oldName, "^" + oldFields.muid + "(\\d+)$", "$1");
 					UpdateCategories(categoryPath, LambdaReplace);
 					UpdateItems(itemFileAgg.GetDefaultListFile(), LambdaReplace);
-					File.Move(
+					Utils.FileMove(
 						categoryPath,
 						Regex.Replace(categoryPath, "ItemCategory_(\\d+)_11.csv$", "ItemCategory_$1_" + fields.muid + ".csv")
 					);
-					File.Move(
+					Utils.FileMove(
 						listPath,
 						Regex.Replace(categoryPath, "ItemList_(\\d+)_11_" + oldFields.muid + "(\\d+).csv$", "ItemList_$1_" + fields.muid + "_$2.csv")
 					);
@@ -427,11 +427,11 @@ public class Modify3DSEModWindow : EditorWindow
 					LambdaReplace = (string oldName) => Regex.Replace(oldName, "^(\\d+)$", fields.muid + "$1");
 					UpdateCategories(categoryPath, LambdaReplace);
 					UpdateItems(itemFileAgg.GetDefaultListFile(), LambdaReplace);
-					File.Move(
+					Utils.FileMove(
 						categoryPath,
 						Regex.Replace(categoryPath, "ItemCategory_(\\d+)_" + oldFields.muid + ".csv$", "ItemCategory_$1_11.csv")
 					);
-					File.Move(
+					Utils.FileMove(
 						listPath,
 						Regex.Replace(categoryPath, "ItemList_(\\d+)_" + oldFields.muid + "_(\\d+).csv$", "ItemList_$1_11_" + fields.muid + "$2.csv")
 					);
@@ -439,11 +439,11 @@ public class Modify3DSEModWindow : EditorWindow
 				else
 				{
 					UpdateItems(itemFileAgg.GetDefaultListFile(), (string oldName) => oldName);
-					File.Move(
+					Utils.FileMove(
 						categoryPath,
 						Regex.Replace(categoryPath, "ItemCategory_(\\d+)_" + oldFields.muid + ".csv$", "ItemCategory_$1_" + fields.muid + ".csv")
 					);
-					File.Move(
+					Utils.FileMove(
 						listPath,
 						Regex.Replace(categoryPath, "ItemList_(\\d+)_" + oldFields.muid + "_(\\d+).csv$", "ItemList_$1_" + fields.muid + "_$2.csv")
 					);

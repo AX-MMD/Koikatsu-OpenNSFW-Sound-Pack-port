@@ -177,8 +177,8 @@ public class GenerateFromSource : MonoBehaviour
 			}
 		}
 		EditorUtility.ClearProgressBar();
+		AssetDatabase.Refresh();
 		Debug.Log("Created: " + result.createCount + " Updated: " + result.updateCount + " Deleted: " + result.deleteCount);
 		EditorUtility.DisplayDialog("Success", title + " completed.\n\n" + "Created: " + result.createCount + "\nUpdated: " + result.updateCount + "\nDeleted: " + result.deleteCount, "OK");
-		AssetDatabase.Refresh();
 	}
 }

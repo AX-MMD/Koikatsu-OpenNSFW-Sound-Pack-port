@@ -120,9 +120,10 @@ namespace IllusionMods.Koikatsu3DSECategoryTool {
 			this.maxPerCategory = maxPerCategory;
 		}
 
-		public List<Category> BuildFromSource(string sourcesPath, int maxPerCategory = int.MaxValue)
+		public List<Category> BuildFromSource(string inputPath, int maxPerCategory = int.MaxValue)
 		{
 			List<Category> categories = new List<Category>();
+			string sourcesPath = Path.GetFullPath(inputPath);
 			string[] rootFolders = Directory.GetDirectories(sourcesPath);
 			List<string> tags = TagManager.GetTags(sourcesPath, new string[] { TagManager.Tags.Indexed });
 
@@ -138,9 +139,10 @@ namespace IllusionMods.Koikatsu3DSECategoryTool {
 					string rootFolderName = Path.GetFileName(rootFolder);
 					tags = TagManager.GetTags(rootFolder, tags);
 
-					if (rootFolderName.StartsWith("-") && rootFolderName.EndsWith("-") && Directory.GetDirectories(rootFolder).Length > 0)
+					Match match = Regex.Match(rootFolderName, @"^\[(.+)]$");
+					if (match.Success && Directory.GetDirectories(rootFolder).Length > 0)
 					{
-						categories.Add(new Category(rootFolderName));
+						categories.Add(new Category(PadSectionString(match.Groups[1].Value)));
 						foreach (string subfolder in Directory.GetDirectories(rootFolder))
 						{
 							categories.AddRange(GetCategoriesRecursive(subfolder, tags));
@@ -193,11 +195,9 @@ namespace IllusionMods.Koikatsu3DSECategoryTool {
 		private List<StudioItemParam> GetCategoryFiles(string folder, ICollection<string> cumulTags, string pathName = "")
 		{
 			List<StudioItemParam> items = new List<StudioItemParam>();
-			List<string> entries = new List<string>(Directory.GetFileSystemEntries(folder));
-			entries.Sort(new NaturalSortComparer());
-
 			int index = 1;
-			foreach (string entry in entries)
+
+			foreach (string entry in Directory.GetFileSystemEntries(folder).OrderBy(x => x, new NaturalSortComparer()))
 			{
 				if (Directory.Exists(entry))
 				{
@@ -234,7 +234,7 @@ namespace IllusionMods.Koikatsu3DSECategoryTool {
 				{
 					items.Add(new StudioItemParam(
 						BuildItemName(pathName, cumulTags, entry, index++), 
-						entry, 
+						Utils.FullPathToAssetPath(entry), 
 						TagManager.GetPrefabModifier(cumulTags)
 					));
 				}
@@ -246,6 +246,32 @@ namespace IllusionMods.Koikatsu3DSECategoryTool {
 		{
 			string name = string.IsNullOrEmpty(pathName) ? Utils.ToItemCase(Path.GetFileNameWithoutExtension(filename)) : pathName;
 			return TagManager.ApplyNameModifierTags(name, tags, filename, index);
+		}
+
+		private string PadSectionString(string input)
+		{
+			int totalLength = 13;
+			int paddingLength = totalLength - input.Length;
+			int leftPadding = paddingLength / 2;
+			int rightPadding = paddingLength - leftPadding;
+			if (paddingLength == 3)
+			{
+				rightPadding = leftPadding = 1;
+			}
+			else if (paddingLength >= 3)
+			{
+				rightPadding--;
+				leftPadding--;
+			}
+
+			if (paddingLength > 2)
+			{
+				return new string('=', leftPadding) + " " + input + (paddingLength > 3 ? " " : "") + new string('=', rightPadding);
+			}
+			else
+			{
+				return new string('=', leftPadding) + input + new string('=', rightPadding);
+			}
 		}
 	}
 

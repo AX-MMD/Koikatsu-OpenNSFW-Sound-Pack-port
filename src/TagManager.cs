@@ -17,32 +17,27 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			public const string Prepend = "prepend";
 			public const string AppendFilename = "appendfilename";
 			public const string PrependFilename = "prependfilename";
-			public const string NoIndex = "no-index";
+			public const string NoIndex = "no-indexed";
 			public const string Indexed = "indexed";
 			public const string NoLoop = "no-loop";
 			public const string Loop = "loop";
+			public const string NoKeepName = "no-keep-name";
 			public const string KeepName = "keep-name";
 			public const string FormatKeepName = "format-keep-name";
 			public const string SkipFolderName = "skip-folder-name";
 			public const string LegacyClassifier = "legacy-classifier";
-		} 
+			public const string Reset = "reset";
 
-		public static HashSet<string> ValidTags = new HashSet<string> { 
-			// type "tag%%<value>" tags //
-			Tags.Append, 
-			Tags.Prepend,
-			// regular tags //
-			Tags.AppendFilename, 
-			Tags.PrependFilename, 
-			Tags.NoIndex, 
-			Tags.Indexed,
-			Tags.NoLoop, 
-			Tags.Loop, 
-			Tags.KeepName, 
-			Tags.FormatKeepName,
-			Tags.SkipFolderName,
-			Tags.LegacyClassifier
-		};
+			public static HashSet<string> ToHashSet() {
+				// add every fields in this class except for the ToHashSet method
+				return new HashSet<string>(typeof(Tags)
+					.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+					.Where(f => f.FieldType == typeof(string))
+					.Select(f => (string)f.GetValue(null)));
+			}
+		}
+
+		public static HashSet<string> ValidTags = Tags.ToHashSet();
 		public const string FileExtention = ".3dsetags";
 
 		public class ValidationError : Exception
@@ -79,13 +74,21 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 
 			foreach (string tag in tags2)
 			{
-				if (tag == Tags.NoIndex)
+				if (tag == Tags.Reset)
+				{
+					combinedTags = new List<string>();
+				}
+				else if (tag == Tags.NoIndex)
 				{
 					combinedTags.RemoveAll(item => item == Tags.Indexed);
 				}
 				else if (tag == Tags.NoLoop)
 				{
 					combinedTags.RemoveAll(item => item == Tags.Loop);
+				}
+				else if (tag == Tags.NoKeepName)
+				{
+					combinedTags.RemoveAll(item => item == Tags.KeepName || item == Tags.FormatKeepName);
 				}
 				else if (tag == Tags.KeepName)
 				{

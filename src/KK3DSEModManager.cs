@@ -186,7 +186,6 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 
 					// Assign the AudioClip to the SEComponent
 					SEComponent seComponent = prefab.GetComponent<SEComponent>();
-					EditorUtility.SetDirty(seComponent);
 					if (seComponent != null)
 					{
 						seComponent._clip = audioClip;
