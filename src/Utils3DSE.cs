@@ -353,7 +353,7 @@ public static class Utils
 
 	public static bool IsValid3DSEModPath(string path)
 	{
-		return Directory.Exists(path) && Directory.GetParent(path).Name == "Mods" && File.Exists(Path.Combine(path, "base_3dse.prefab"));
+		return Directory.Exists(path) && GetModPath(path) != null && File.Exists(Path.Combine(path, "base_3dse.prefab"));
 	}
 
 	public static string ToZipmodFileName(string input)
