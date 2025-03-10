@@ -7,7 +7,7 @@ This is a port of the [OpenNSFW Sound Pack](https://opennsfw.carrd.co/) as a mod
 As of 2025-03-10, contains:
 
 OpenNSFW main library: Complete
-* `OpenNSFW/Plaps/`
+* `OpenNSFW/Plaps`
 * `OpenNSFW/Oral - Mouth`
 * `OpenNSFW/Cum`
 * `OpenNSFW/Body Noises`
@@ -80,7 +80,7 @@ Releases page: https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/relea
 2025-03-10 年現在、このパッケージには以下が含まれている：
 
 OpenNSFWメインライブラリ： 完全版
-* `OpenNSFW/Plaps/`(衝撃音)
+* `OpenNSFW/Plaps`(衝撃音)
 * `OpenNSFW/Oral - Mouth` (口腔音)
 * `OpenNSFW/Cum` (性体液)
 * `OpenNSFW/Body Noises` (ボディノイズ)
