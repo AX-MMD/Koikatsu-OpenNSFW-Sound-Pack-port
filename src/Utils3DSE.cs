@@ -69,282 +69,201 @@ public static class Utils
 	}
 
 	public class ManifestInfo
-	{
-		public string guid;
-		public string author;
-		public string name;
-		public string muid;
-		public string version;
-		public string description;
-		public string website;
+    {
+        public string guid { get; set; }
+        public string author { get; set; }
+        public string name { get; set; }
+        public string muid { get; set; }
+        public string version { get; set; }
+        public string description { get; set; }
+        public string website { get; set; }
 
-		public ManifestInfo(string manifestPath)
-		{
-			XmlDocument xmlDoc = new XmlDocument();
-			if (!File.Exists(manifestPath)) {
-				XmlElement manifest = xmlDoc.CreateElement("manifest");
-				xmlDoc.AppendChild(manifest);
-			} else {
-				xmlDoc.Load(manifestPath);
-			}
-			XmlNode guidNode = xmlDoc.SelectSingleNode("//guid");
-			if (guidNode == null) {
-				xmlDoc.CreateElement("guid");
-				this.guid = "";
-			} else {
-				this.guid = guidNode.InnerText;
-			}
-			XmlNode authorNode = xmlDoc.SelectSingleNode("//author");
-			if (authorNode == null) {
-				xmlDoc.CreateElement("author");
-				this.author = "";
-			} else {
-				this.author = authorNode.InnerText;
-			}
-			XmlNode nameNode = xmlDoc.SelectSingleNode("//name");
-			if (nameNode == null) {
-				xmlDoc.CreateElement("name");
-				this.name = "";
-			} else {
-				this.name = nameNode.InnerText;
-			}
-			XmlNode muidNode = xmlDoc.SelectSingleNode("//muid");
-			if (muidNode == null) {
-				xmlDoc.CreateElement("muid");
-				this.muid = "";
-			} else {
-				this.muid = muidNode.InnerText;
-			}
-			XmlNode versionNode = xmlDoc.SelectSingleNode("//version");
-			if (versionNode == null) {
-				xmlDoc.CreateElement("version");
-				this.version = "";
-			} else {
-				this.version = versionNode.InnerText;
-			}
-			XmlNode descriptionNode = xmlDoc.SelectSingleNode("//description");
-			if (descriptionNode == null) {
-				xmlDoc.CreateElement("description");
-				this.description = "";
-			} else {
-				this.description = descriptionNode.InnerText;
-			}
-			XmlNode websiteNode = xmlDoc.SelectSingleNode("//website");
-			if (websiteNode == null) {
-				xmlDoc.CreateElement("website");
-				this.website = "";
-			} else {
-				this.website = websiteNode.InnerText;
-			}
-		}
+        public ManifestInfo(string manifestPath)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            if (!File.Exists(manifestPath))
+            {
+                XmlElement manifest = xmlDoc.CreateElement("manifest");
+                xmlDoc.AppendChild(manifest);
+            }
+            else
+            {
+                xmlDoc.Load(manifestPath);
+            }
 
-		public ManifestInfo(string guid = "", string author = "", string name = "", string muid = "", string version = "", string description = "", string website = "")
-		{
-			this.guid = guid;
-			this.author = author;
-			this.name = name;
-			this.muid = muid;
-			this.version = version;
-			this.description = description;
-			this.website = website;
-		}
+            guid = GetXmlNodeValue(xmlDoc, "guid");
+            author = GetXmlNodeValue(xmlDoc, "author");
+            name = GetXmlNodeValue(xmlDoc, "name");
+            muid = GetXmlNodeValue(xmlDoc, "muid");
+            version = GetXmlNodeValue(xmlDoc, "version");
+            description = GetXmlNodeValue(xmlDoc, "description");
+            website = GetXmlNodeValue(xmlDoc, "website");
+        }
 
-		public ManifestInfo(Dictionary<string, string> fields)
-		{
-			this.guid = fields.ContainsKey("guid") ? fields["guid"] : "";
-			this.author = fields.ContainsKey("author") ? fields["author"] : "";
-			this.name = fields.ContainsKey("name") ? fields["name"] : "";
-			this.muid = fields.ContainsKey("muid") ? fields["muid"] : "";
-			this.version = fields.ContainsKey("version") ? fields["version"] : "";
-			this.description = fields.ContainsKey("description") ? fields["description"] : "";
-			this.website = fields.ContainsKey("website") ? fields["website"] : "";
-		}
+        public ManifestInfo(string guid = "", string author = "", string name = "", string muid = "", string version = "", string description = "", string website = "")
+        {
+            this.guid = guid;
+            this.author = author;
+            this.name = name;
+            this.muid = muid;
+            this.version = version;
+            this.description = description;
+            this.website = website;
+        }
 
-		public void Update<T>(T fields) where T : ManifestInfo
-		{
-			this.Update(
-				fields.guid,
-				fields.author,
-				fields.name,
-				fields.muid,
-				fields.version,
-				fields.description,
-				fields.website
-			);
-		}
+        public ManifestInfo(Dictionary<string, string> fields)
+        {
+            guid = fields.ContainsKey("guid") ? fields["guid"] : "";
+            author = fields.ContainsKey("author") ? fields["author"] : "";
+            name = fields.ContainsKey("name") ? fields["name"] : "";
+            muid = fields.ContainsKey("muid") ? fields["muid"] : "";
+            version = fields.ContainsKey("version") ? fields["version"] : "";
+            description = fields.ContainsKey("description") ? fields["description"] : "";
+            website = fields.ContainsKey("website") ? fields["website"] : "";
+        }
 
-		public void Update(Dictionary<string, string> fields)
-		{
-			this.Update(
-				fields.ContainsKey("guid") ? fields["guid"] : null,
-				fields.ContainsKey("author") ? fields["author"] : null,
-				fields.ContainsKey("name") ? fields["name"] : null,
-				fields.ContainsKey("muid") ? fields["muid"] : null,
-				fields.ContainsKey("version") ? fields["version"] : null,
-				fields.ContainsKey("description") ? fields["description"] : null,
-				fields.ContainsKey("website") ? fields["website"] : null
-			);
-		}
+        public void Update<T>(T fields) where T : ManifestInfo
+        {
+            Update(
+                fields.guid,
+                fields.author,
+                fields.name,
+                fields.muid,
+                fields.version,
+                fields.description,
+                fields.website
+            );
+        }
 
-		public void Update(string guid = null, string author = null, string name = null, string muid = null, string version = null, string description = null, string website = null)
-		{
-			if (guid != null) {
-				this.guid = guid;
-			}
-			if (author != null) {
-				this.author = author;
-			}
-			if (name != null) {
-				this.name = name;
-			}
-			if (muid != null) {
-				this.muid = muid;
-			}
-			if (version != null) {
-				this.version = version;
-			}
-			if (description != null) {
-				this.description = description;
-			}
-			if (website != null) {
-				this.website = website;
-			}
-		}
+        public void Update(Dictionary<string, string> fields)
+        {
+            Update(
+                fields.ContainsKey("guid") ? fields["guid"] : null,
+                fields.ContainsKey("author") ? fields["author"] : null,
+                fields.ContainsKey("name") ? fields["name"] : null,
+                fields.ContainsKey("muid") ? fields["muid"] : null,
+                fields.ContainsKey("version") ? fields["version"] : null,
+                fields.ContainsKey("description") ? fields["description"] : null,
+                fields.ContainsKey("website") ? fields["website"] : null
+            );
+        }
 
-		public Dictionary<string, string> ToDictionary()
-		{
-			return new Dictionary<string, string>
-			{
-				{ "guid", this.guid },
-				{ "author", this.author },
-				{ "name", this.name },
-				{ "muid", this.muid },
-				{ "version", this.version },
-				{ "description", this.description },
-				{ "website", this.website },
-			};
-		}
+        public void Update(string guid = null, string author = null, string name = null, string muid = null, string version = null, string description = null, string website = null)
+        {
+            if (guid != null) this.guid = guid;
+            if (author != null) this.author = author;
+            if (name != null) this.name = name;
+            if (muid != null) this.muid = muid;
+            if (version != null) this.version = version;
+            if (description != null) this.description = description;
+            if (website != null) this.website = website;
+        }
 
-		public List<string> Validate()
-		{
-			List<string> errors = new List<string>();
-			if (string.IsNullOrEmpty(this.guid))
-			{
-				errors.Add("GUID is required");
-			}
-			if (string.IsNullOrEmpty(this.author))
-			{
-				errors.Add("Author name is required");
-			}
-			if (string.IsNullOrEmpty(this.name))
-			{
-				errors.Add("Mod name is required");
-			}
-			if (string.IsNullOrEmpty(this.muid))
-			{
-				errors.Add("MUID is required");
-			}
-			else if (!Regex.IsMatch(this.muid, @"^\d{3,6}$"))
-			{
-				errors.Add("MUID must be a 3-6 digit number");
-			}
-			else if (int.Parse(this.muid) < 100 || int.Parse(this.muid) > 999999)
-			{
-				errors.Add("MUID must be between 100 and 999999");
-			}
-			return errors;
-		}
+        public Dictionary<string, string> ToDictionary()
+        {
+            return new Dictionary<string, string>
+            {
+                { "guid", guid },
+                { "author", author },
+                { "name", name },
+                { "muid", muid },
+                { "version", version },
+                { "description", description },
+                { "website", website }
+            };
+        }
 
-		public void Save(string manifestPath)
-		{
-			if (string.IsNullOrEmpty(manifestPath))
-			{
-				throw new Exception("Manifest filePath is required.");
-			}
+        public List<string> Validate()
+        {
+            List<string> errors = new List<string>();
+            if (string.IsNullOrEmpty(guid)) errors.Add("GUID is required");
+            if (string.IsNullOrEmpty(author)) errors.Add("Author name is required");
+            if (string.IsNullOrEmpty(name)) errors.Add("Mod name is required");
+            if (string.IsNullOrEmpty(muid)) errors.Add("MUID is required");
+            else if (!Regex.IsMatch(muid, @"^\d{3,6}$")) errors.Add("MUID must be a 3-6 digit number");
+            else if (int.Parse(muid) < 100 || int.Parse(muid) > 999999) errors.Add("MUID must be between 100 and 999999");
+            return errors;
+        }
 
-			XmlDocument xmlDoc = new XmlDocument();
-			xmlDoc.Load(manifestPath);
+        public void Save(string manifestPath)
+        {
+            if (string.IsNullOrEmpty(manifestPath)) throw new Exception("Manifest filePath is required.");
 
-			foreach (KeyValuePair<string, string> field in this.ToDictionary())
-			{
-				if (field.Value == null)
-				{
-					continue;
-				}
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(manifestPath);
 
-				XmlNode node = xmlDoc.SelectSingleNode("//" + field.Key);
-				if (node != null)
-				{
-					node.InnerText = field.Value;
-				}
-				else
-				{
-					XmlNode rootNode = xmlDoc.SelectSingleNode("//manifest");
-					XmlElement element = xmlDoc.CreateElement(field.Key);
-					element.InnerText = field.Value;
-					rootNode.AppendChild(element);
-				}
-			}
+            foreach (var field in ToDictionary())
+            {
+                if (field.Value == null) continue;
 
-			List<string> errors = this.Validate();
-			if (errors.Count == 0)
-			{
-				xmlDoc.Save(manifestPath);
-			}
-			else
-			{
-				throw new Exception(string.Join("\n", errors.ToArray()));
-			}
-		}
+                XmlNode node = xmlDoc.SelectSingleNode("//" + field.Key);
+                if (node != null)
+                {
+                    node.InnerText = field.Value;
+                }
+                else
+                {
+                    XmlNode rootNode = xmlDoc.SelectSingleNode("//manifest");
+                    XmlElement element = xmlDoc.CreateElement(field.Key);
+                    element.InnerText = field.Value;
+                    rootNode.AppendChild(element);
+                }
+            }
 
-		public static bool operator ==(ManifestInfo m1, ManifestInfo m2)
-		{
-			if (ReferenceEquals(m1, m2))
-			{
-				return true;
-			}
+            List<string> errors = Validate();
+            if (errors.Count == 0)
+            {
+                xmlDoc.Save(manifestPath);
+            }
+            else
+            {
+                throw new Exception(string.Join("\n", errors.ToArray()));
+            }
+        }
 
-			if ((object)m1 == null || (object)m2 == null)
-			{
-				return false;
-			}
+        private static string GetXmlNodeValue(XmlDocument xmlDoc, string nodeName)
+        {
+            XmlNode node = xmlDoc.SelectSingleNode("//" + nodeName);
+            return node != null ? node.InnerText : "";
+        }
 
-			return m1.guid == m2.guid &&
-				m1.author == m2.author &&
-				m1.name == m2.name &&
-				m1.muid == m2.muid &&
-				m1.version == m2.version &&
-				m1.description == m2.description &&
-				m1.website == m2.website;
-		}
+        public static bool operator ==(ManifestInfo m1, ManifestInfo m2)
+        {
+            if (ReferenceEquals(m1, m2)) return true;
+            if ((object)m1 == null || (object)m2 == null) return false;
 
-		public static bool operator !=(ManifestInfo m1, ManifestInfo m2)
-		{
-			return !(m1 == m2);
-		}
+            return m1.guid == m2.guid &&
+                   m1.author == m2.author &&
+                   m1.name == m2.name &&
+                   m1.muid == m2.muid &&
+                   m1.version == m2.version &&
+                   m1.description == m2.description &&
+                   m1.website == m2.website;
+        }
 
-		public override bool Equals(object obj)
-		{
-			if (obj == null || GetType() != obj.GetType())
-			{
-				return false;
-			}
+        public static bool operator !=(ManifestInfo m1, ManifestInfo m2)
+        {
+            return !(m1 == m2);
+        }
 
-			ManifestInfo other = (ManifestInfo)obj;
-			return this == other;
-		}
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType()) return false;
+            ManifestInfo other = (ManifestInfo)obj;
+            return this == other;
+        }
 
-		public override int GetHashCode()
-		{
-			return (guid ?? "").GetHashCode() ^
-				(author ?? "").GetHashCode() ^
-				(name ?? "").GetHashCode() ^
-				(muid ?? "").GetHashCode() ^
-				(version ?? "").GetHashCode() ^
-				(description ?? "").GetHashCode() ^
-				(website ?? "").GetHashCode();
-		}
-	}
+        public override int GetHashCode()
+        {
+            return (guid ?? "").GetHashCode() ^
+                   (author ?? "").GetHashCode() ^
+                   (name ?? "").GetHashCode() ^
+                   (muid ?? "").GetHashCode() ^
+                   (version ?? "").GetHashCode() ^
+                   (description ?? "").GetHashCode() ^
+                   (website ?? "").GetHashCode();
+        }
+    }
 
 	public static string GetAssetBundlePath(string modPath, string categoryKey)
 	{
