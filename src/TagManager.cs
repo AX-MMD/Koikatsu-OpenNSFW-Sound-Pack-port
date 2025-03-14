@@ -13,20 +13,24 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 	public static class TagManager {
 
 		public static class Tags {
+			// tag%%value kind of tags
 			public const string Append = "append";
 			public const string Prepend = "prepend";
+			// regular tags
 			public const string AppendFilename = "appendfilename";
 			public const string PrependFilename = "prependfilename";
-			public const string NoIndex = "no-indexed";
 			public const string Indexed = "indexed";
-			public const string NoLoop = "no-loop";
 			public const string Loop = "loop";
-			public const string NoKeepName = "no-keep-name";
 			public const string KeepName = "keep-name";
 			public const string FormatKeepName = "format-keep-name";
+			// negation tags
+			public const string NoIndex = "no-indexed";
+			public const string NoLoop = "no-loop";
+			public const string NoKeepName = "no-keep-name";
+			public const string Reset = "reset";
+			// folder action tags
 			public const string SkipFolderName = "skip-folder-name";
 			public const string LegacyClassifier = "legacy-classifier";
-			public const string Reset = "reset";
 
 			public static HashSet<string> ToHashSet() {
 				// add every fields in this class except for the ToHashSet method

@@ -11,40 +11,10 @@ using IllusionMods.KoikatsuStudioCsv;
 
 public class New3DSEMod : MonoBehaviour
 {
-	[MenuItem("Assets/3DSE/New 3DSE Mod", true)]
-	public static bool ValidateMakeNew3DSEMod()
-	{
-		if (Selection.objects.Length > 0 || Selection.assetGUIDs.Length > 1)
-		{
-			return false;
-		}
-		else if (Selection.assetGUIDs.Length == 1)
-		{
-			string path = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]);
-			return AssetDatabase.IsValidFolder(path) && (Path.GetFileName(path) == "Mods" || Directory.GetParent(path).Name == "Mods");
-		}
-		else
-		{
-			return true;
-		}
-	}
-
 	[MenuItem("Assets/3DSE/Edit 3DSE Mod", true)]
 	public static bool ValidateEdit3DSEMod()
 	{
-		if (Selection.objects.Length > 0 || Selection.assetGUIDs.Length > 1)
-		{
-			return false;
-		}
-		else if (Selection.assetGUIDs.Length == 1)
-		{
-			string path = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]);
-			return AssetDatabase.IsValidFolder(path) && Utils.IsValid3DSEModPath(Utils.GetModPath(path));
-		}
-		else
-		{
-			return true;
-		}
+		return Utils.GetSelected3DSEModPaths().Count == 1;
 	}
 
 	[MenuItem("Assets/3DSE/New 3DSE Mod")]
@@ -80,7 +50,7 @@ public class New3DSEMod : MonoBehaviour
 		}
 		else
 		{
-			sourcePath = Utils.GetModPath(AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]));
+			sourcePath = Utils.GetSelected3DSEModPaths().First();
 			destinationPath = sourcePath;
 		}
 
@@ -253,8 +223,8 @@ public class Modify3DSEModWindow : EditorWindow
 		GUILayout.Label("Author name", EditorStyles.boldLabel);
 		fields.author = EditorGUILayout.TextField("Author", fields.author);
 
-		GUILayout.Label("Studio Item Tab (leave default if you want it in the 3D SFX tab)", EditorStyles.boldLabel);
-		itemGroupName = EditorGUILayout.TextField("Name", itemGroupName);
+		GUILayout.Label("Studio Item Tab (default is '3D SFX' tab)", EditorStyles.boldLabel);
+		itemGroupName = EditorGUILayout.TextField("Tab Name", itemGroupName);
 
 		GUILayout.Label("3-6 Digits unique ID:", EditorStyles.boldLabel);
 		fields.muid = EditorGUILayout.TextField("Mod UID", fields.muid);

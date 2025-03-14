@@ -13,7 +13,11 @@ public class TagEditor : MonoBehaviour
 	private static bool ValidateCreateTagFiles()
 	{
 		// If is a side panel folder or singular object, check if it is a Sources folder or subfolder of Sources from a 3DSE mod
-		if (Selection.assetGUIDs.Length == 1 && Selection.objects.Length <= 1)
+		if (Selection.activeObject != null)
+		{
+			return Path.GetExtension(AssetDatabase.GetAssetPath(Selection.activeObject)) == TagManager.FileExtention;
+		}
+		else if (Selection.assetGUIDs.Length == 1 && Selection.objects.Length <= 1)
         {
             string path = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]);
             if (AssetDatabase.IsValidFolder(path) && Utils.IsValid3DSEModPath(Utils.GetModPath(path)))
@@ -28,6 +32,7 @@ public class TagEditor : MonoBehaviour
                 }
             }
         }
+		
 
 		return false;
 	}
@@ -35,7 +40,16 @@ public class TagEditor : MonoBehaviour
 	[MenuItem("Assets/3DSE/Edit 3dse tags")]
 	public static void CreateTagFiles()
 	{
-		string selectedPath = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]);
+		string selectedPath;
+		if (Selection.activeObject != null)
+		{
+			selectedPath = AssetDatabase.GetAssetPath(Selection.activeObject);
+		}
+		else
+		{
+			selectedPath = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]);
+		}
+		
 		TagEditorWindow.ShowWindow(selectedPath);
 	}
 }
