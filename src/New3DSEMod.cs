@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Xml;
 using IllusionMods.Koikatsu3DSEModTools;
 using IllusionMods.KoikatsuStudioCsv;
+using IllusionMods.Koikatsu3DSECategoryTool;
 
 public class New3DSEMod : MonoBehaviour
 {
@@ -84,12 +85,14 @@ public class Modify3DSEModWindow : EditorWindow
 	private static string itemGroupName = "3DSE";
 	private static string oldItemGroupName = null;
 	private static CsvUtils.ItemFileAggregate itemFileAgg;
-	private static Utils.ManifestInfo fields;
+	private static Utils.ManifestInfo fields = new Utils.ManifestInfo();
 	private static Utils.ManifestInfo oldFields;
+	private static string[] studioTabs = new string[] { "3DSE", "Custom"};
+	private static int studioTabMode = 0;
+	private static string firstCategory = "01";
 
 	public Modify3DSEModWindow()
 	{
-		fields = new Utils.ManifestInfo();
 	}
 
 	public static void ShowWindow(string srcPath, string destPath, bool create)
@@ -108,9 +111,68 @@ public class Modify3DSEModWindow : EditorWindow
 		}
 	}
 
+	private enum GroupChangeState
+	{
+		From3DSETo3DSE,
+		From3DSEToCustom,
+		FromCustomTo3DSE,
+		FromCustomToCustom,
+		NoChange
+	}
+
+	private static GroupChangeState GetGroupChangeState(string oldName, string newName)
+	{
+		if (oldName == newName)
+		{
+			return GroupChangeState.NoChange;
+		}
+		else if (oldName == "3DSE")
+		{
+			if (newName == "3DSE")
+			{
+				return GroupChangeState.From3DSETo3DSE;
+			}
+			else
+			{
+				return GroupChangeState.From3DSEToCustom;
+			}
+		}
+		else
+		{
+			if (newName == "3DSE")
+			{
+				return GroupChangeState.FromCustomTo3DSE;
+			}
+			else
+			{
+				return GroupChangeState.FromCustomToCustom;
+			}
+		}
+	}
+
+	private static string ConvertCategoryNumber(string oldCategoryNumber, GroupChangeState changeState)
+	{
+		if (string.IsNullOrEmpty(oldCategoryNumber))
+		{
+			return oldCategoryNumber;
+		}
+		else if (changeState == GroupChangeState.From3DSEToCustom)
+		{
+			return Regex.Replace(oldCategoryNumber, "^" + fields.muid + "(\\d+)$", "$1");
+		}
+		else if (changeState == GroupChangeState.FromCustomTo3DSE)
+		{
+			return Regex.Replace(oldCategoryNumber, "^(\\d+)$", fields.muid + "$1");
+		}
+		else
+		{
+			return oldCategoryNumber;
+		}
+	}
+
 	private static void LoadForEdit(string path)
 	{
-		oldFields = new Utils.ManifestInfo(Path.Combine(path, "manifest.xml"));
+		oldFields = Utils.ManifestInfo.Load(Path.Combine(path, "manifest.xml"));
 		fields.Update(oldFields);
 		itemFileAgg = CsvUtils.GetItemFileAggregate(path);
 
@@ -131,6 +193,17 @@ public class Modify3DSEModWindow : EditorWindow
 		{
 			oldItemGroupName = itemGroupName = group.name;
 		}
+
+		if (itemGroupName == "3DSE")
+		{
+			studioTabMode = 0;
+			firstCategory = ConvertCategoryNumber(itemFileAgg.GetModInfo().Item2, GroupChangeState.From3DSEToCustom);
+		}
+		else
+		{
+			studioTabMode = 1;
+			firstCategory = itemFileAgg.GetModInfo().Item2;
+		}
 	}
 
 	private static void EnsureDataFilesFolderIntegrity(CsvUtils.ItemFileAggregate itemFileAgg)
@@ -146,45 +219,58 @@ public class Modify3DSEModWindow : EditorWindow
 		}
 
 		Utils.Tuple<string> modInfo = itemFileAgg.GetModInfo();
+		// If null, both ItemGroup and ItemCategory files are missing or have an incorrect name.
 		string groupNumber = modInfo.Item1;
-		string categoryNumber = modInfo.Item2;
-
-		// If groupNumber is null it means both ItemCategory and ItemList files are missing, rebuild assuming default (11, 3DSE).
+		// If null, ItemList file is missing or has an incorrect name.
+		string categoryNumber = modInfo.Item2; 
+		// If both ItemCategory and ItemList files are missing, rebuild assuming default (11, 3DSE).
+		string groupName;
 
 		// ItemGroup integrity
-		if (itemFileAgg.GetDefaultGroupFile() == null)
+		if (itemFileAgg.GetDefaultGroupFile() == null || itemFileAgg.IsEmptyEntries<CsvUtils.StudioGroup>())
 		{
-			if (groupNumber == "11" || groupNumber == null)
-			{
-				CsvUtils.WriteToCsv(
-					Path.Combine(itemFileAgg.csvFolder, "ItemGroup_" + Path.GetFileName(itemFileAgg.csvFolder) + ".csv"),
-					new CsvUtils.StudioGroup[] { new CsvUtils.StudioGroup("11", "3DSE") }
-				);
-			}
-			else 
-			{
-				File.Create(Path.Combine(itemFileAgg.csvFolder, "ItemGroup_" + Path.GetFileName(itemFileAgg.csvFolder) + ".csv")).Close();
-			}
+			groupNumber = groupNumber ?? fields.muid;
+			groupName = (groupNumber == "11" || groupNumber == null) ? "3DSE" : fields.name;
+			CsvUtils.WriteToCsv(
+				Path.Combine(itemFileAgg.csvFolder, "ItemGroup_" + Path.GetFileName(itemFileAgg.csvFolder) + ".csv"),
+				new CsvUtils.StudioGroup[] { new CsvUtils.StudioGroup(groupNumber, groupName) }
+			);
 		}
-		else if (groupNumber == null)
+		else
 		{
-			CsvUtils.StudioGroup first = itemFileAgg.GetFirstEntry<CsvUtils.StudioGroup>();
-			groupNumber = first == null ? "11" : first.groupNumber;
+			groupNumber = itemFileAgg.GetFirstEntry<CsvUtils.StudioGroup>().groupNumber;
 		}
 
 		// ItemCategory integrity
 		if (itemFileAgg.GetDefaultCategoryFile() == null)
 		{
 			File.Create(Path.Combine(itemFileAgg.csvFolder, "ItemCategory_00_" + groupNumber + ".csv")).Close();
+			itemFileAgg.Refresh();
+		}
+		
+
+		// ItemList integrity
+		if (itemFileAgg.GetDefaultListFile() == null)
+		{
+			File.Create(Path.Combine(itemFileAgg.csvFolder, "ItemList_00_" + groupNumber + "_" + categoryNumber + ".csv")).Close();
 		}
 		else if (categoryNumber == null)
 		{
+			// Is incorrect ItemList file name, renaming file.
 			CsvUtils.StudioCategory first = itemFileAgg.GetFirstEntry<CsvUtils.StudioCategory>();
-			if (groupNumber == "11")
+			if (first != null)
 			{
-				if (first != null)
+				categoryNumber = first.categoryNumber;
+			}
+			else if (!itemFileAgg.IsEmptyEntries<CsvUtils.StudioItem>())
+			{
+				categoryNumber = itemFileAgg.GetFirstEntry<CsvUtils.StudioItem>().categoryNumber;
+			}
+			else
+			{
+				if (groupNumber != "11")
 				{
-					categoryNumber = first.categoryNumber;
+					categoryNumber = "01";
 				}
 				else if (!string.IsNullOrEmpty(fields.muid))
 				{
@@ -195,16 +281,8 @@ public class Modify3DSEModWindow : EditorWindow
 					throw new Exception("Rebuild Failed, too many missing elements");
 				}
 			}
-			else
-			{
-				categoryNumber = first == null ? "01" : first.categoryNumber;
-			}
-		}
 
-		// ItemList integrity
-		if (null == itemFileAgg.GetDefaultListFile())
-		{
-			File.Create(Path.Combine(itemFileAgg.csvFolder, "ItemList_00_" + groupNumber + "_" + categoryNumber + ".csv")).Close();
+			Utils.FileMove(itemFileAgg.GetDefaultListFile(), Path.Combine(itemFileAgg.csvFolder, "ItemList_00_" + groupNumber + "_" + categoryNumber + ".csv"));
 		}
 
 		itemFileAgg.Refresh();
@@ -223,8 +301,28 @@ public class Modify3DSEModWindow : EditorWindow
 		GUILayout.Label("Author name", EditorStyles.boldLabel);
 		fields.author = EditorGUILayout.TextField("Author", fields.author);
 
+
 		GUILayout.Label("Studio Item Tab (default is '3D SFX' tab)", EditorStyles.boldLabel);
-		itemGroupName = EditorGUILayout.TextField("Tab Name", itemGroupName);
+		studioTabMode = EditorGUILayout.Popup("Tab", studioTabMode, studioTabs);
+
+		if (studioTabMode == 0)
+		{
+			itemGroupName = "3DSE";
+		}
+		else
+		{
+			if (!createMode && oldItemGroupName != "3DSE")
+			{
+				itemGroupName = oldItemGroupName;
+			}
+			else if (itemGroupName == "3DSE")
+			{
+				itemGroupName = "";
+			}
+			itemGroupName = EditorGUILayout.TextField("Name", itemGroupName);
+		}
+
+		firstCategory = EditorGUILayout.TextField("First Category #", firstCategory);
 
 		GUILayout.Label("3-6 Digits unique ID:", EditorStyles.boldLabel);
 		fields.muid = EditorGUILayout.TextField("Mod UID", fields.muid);
@@ -239,10 +337,11 @@ public class Modify3DSEModWindow : EditorWindow
 			fields.guid = Utils.MakeModGuid(fields.author, fields.name);
 		}
 
-		if (GUILayout.Button(createMode ? "Create" : "Save") && (createMode || IsChanged()) && ValidateFields())
+		if (GUILayout.Button(createMode ? "Create" : "Save") && (createMode || IsChanged()))
 		{
 			try
 			{
+				ValidateFields();
 				if (createMode)
 				{
 					CreateMod();
@@ -256,22 +355,35 @@ public class Modify3DSEModWindow : EditorWindow
 			{
 				Utils.LogErrorWithTrace(e);
 				EditorUtility.DisplayDialog("Error", e.Message, "OK");
+				itemFileAgg.Refresh();
 			}
 		}
 	}
 
 	private bool IsChanged()
 	{
-		return new Utils.ManifestInfo(Path.Combine(sourcePath, "manifest.xml")) != fields || itemGroupName != oldItemGroupName;
+		return Utils.ManifestInfo.Load(Path.Combine(sourcePath, "manifest.xml")) != fields 
+		|| itemGroupName != oldItemGroupName
+		|| firstCategory != itemFileAgg.GetModInfo().Item2;
 	}
 
 	private bool ValidateFields()
 	{
 		List<string> errors = fields.Validate();
 
+		int _;
+		if (!int.TryParse(firstCategory, out _))
+		{
+			errors.Add("First Category # must be a number: " + firstCategory);
+		}
+
 		if (itemGroupName == "")
 		{
 			errors.Add("Studio Item Tab is required.");
+		}
+		else if (itemGroupName == "3DSE" && (fields.muid.Length + firstCategory.Length) > 8)
+		{
+			errors.Add("For the 3DSE tab, Mod UID + First Category must be 8 digits or less.");
 		}
 
 		if (errors.Count > 0)
@@ -284,8 +396,6 @@ public class Modify3DSEModWindow : EditorWindow
 
 	private void CreateMod()
 	{
-		// Good luck //
-
 		// Koikastu Studio CSV files convention used here:
 		// * ItemGroup_<name_of_parent_folder>.csv
 		// * ItemCategory_<index>_<first_group_in_ItemGroup>.csv
@@ -337,7 +447,7 @@ public class Modify3DSEModWindow : EditorWindow
 				);
 				Utils.FileMove(
 					Path.Combine(listPath, "ItemList_00_11_01.csv"),
-					Path.Combine(listPath, "ItemList_00_" + fields.muid + "_01.csv")
+					Path.Combine(listPath, "ItemList_00_" + fields.muid + "_" + firstCategory + ".csv")
 				);
 			}
 
@@ -345,6 +455,7 @@ public class Modify3DSEModWindow : EditorWindow
 			AssetDatabase.Refresh();
 			EditorUtility.DisplayDialog("Success", "Mod created successfully.", "OK");
 			this.Close();
+			ShowWindow(newDestinationPath, newDestinationPath, false);
 		}
 		catch (Exception e)
 		{
@@ -360,9 +471,23 @@ public class Modify3DSEModWindow : EditorWindow
 	{
 		try
 		{
-			if (itemGroupName != oldItemGroupName)
+			bool majorEdit = false;
+			GroupChangeState changeState = GetGroupChangeState(oldItemGroupName, itemGroupName);
+			if ((changeState != GroupChangeState.NoChange || firstCategory != itemFileAgg.GetModInfo().Item2) && itemFileAgg.GetFirstEntry<CsvUtils.StudioCategory>() != null)
 			{
-				List<CsvUtils.StudioGroup> groups = CsvUtils.DeserializeCsvStudio<CsvUtils.StudioGroup>(itemFileAgg.GetDefaultGroupFile());
+				if ( ! EditorUtility.DisplayDialog("Major Edit", "Changing 3DSE <-> Custom or First Category # will re-create CSV files from Sources. \n\nContinue?", "Yes", "No"))
+				{
+					throw new Exception("Rebuild aborted by user");
+				}
+				else
+				{
+					majorEdit = true;
+				}
+			}
+
+			if (changeState != GroupChangeState.NoChange)
+			{
+				List<CsvUtils.StudioGroup> groups = itemFileAgg.GetEntries<CsvUtils.StudioGroup>();
 				if (groups.Count == 0)
 				{
 					groups.Add(new CsvUtils.StudioGroup(itemGroupName == "3DSE" ? "11" : fields.muid, itemGroupName));
@@ -370,54 +495,68 @@ public class Modify3DSEModWindow : EditorWindow
 				else
 				{
 					groups[0].name = itemGroupName;
+					groups[0].groupNumber = itemGroupName == "3DSE" ? "11" : fields.muid;
 				}
 				CsvUtils.WriteToCsv(itemFileAgg.GetDefaultGroupFile(), groups);
-
-				string categoryPath = itemFileAgg.GetDefaultCategoryFile();
-				string listPath = itemFileAgg.GetDefaultListFile();
-
-				Func<string, string> LambdaReplace;
-				if (oldItemGroupName == "3DSE")
-				{
-					LambdaReplace = (string oldName) => Regex.Replace(oldName, "^" + oldFields.muid + "(\\d+)$", "$1");
-					UpdateCategories(categoryPath, LambdaReplace);
-					UpdateItems(itemFileAgg.GetDefaultListFile(), LambdaReplace);
-					Utils.FileMove(
-						categoryPath,
-						Regex.Replace(categoryPath, "ItemCategory_(\\d+)_11.csv$", "ItemCategory_$1_" + fields.muid + ".csv")
-					);
-					Utils.FileMove(
-						listPath,
-						Regex.Replace(categoryPath, "ItemList_(\\d+)_11_" + oldFields.muid + "(\\d+).csv$", "ItemList_$1_" + fields.muid + "_$2.csv")
-					);
-				}
-				else if (itemGroupName == "3DSE")
-				{
-					LambdaReplace = (string oldName) => Regex.Replace(oldName, "^(\\d+)$", fields.muid + "$1");
-					UpdateCategories(categoryPath, LambdaReplace);
-					UpdateItems(itemFileAgg.GetDefaultListFile(), LambdaReplace);
-					Utils.FileMove(
-						categoryPath,
-						Regex.Replace(categoryPath, "ItemCategory_(\\d+)_" + oldFields.muid + ".csv$", "ItemCategory_$1_11.csv")
-					);
-					Utils.FileMove(
-						listPath,
-						Regex.Replace(categoryPath, "ItemList_(\\d+)_" + oldFields.muid + "_(\\d+).csv$", "ItemList_$1_11_" + fields.muid + "$2.csv")
-					);
-				}
-				else
-				{
-					UpdateItems(itemFileAgg.GetDefaultListFile(), (string oldName) => oldName);
-					Utils.FileMove(
-						categoryPath,
-						Regex.Replace(categoryPath, "ItemCategory_(\\d+)_" + oldFields.muid + ".csv$", "ItemCategory_$1_" + fields.muid + ".csv")
-					);
-					Utils.FileMove(
-						listPath,
-						Regex.Replace(categoryPath, "ItemList_(\\d+)_" + oldFields.muid + "_(\\d+).csv$", "ItemList_$1_" + fields.muid + "_$2.csv")
-					);
-				}
 			}
+
+			string categoryPath = itemFileAgg.GetDefaultCategoryFile();
+			string listPath = itemFileAgg.GetDefaultListFile();
+
+			if (changeState == GroupChangeState.From3DSEToCustom)
+			{
+				Utils.FileMove(
+					categoryPath,
+					Regex.Replace(categoryPath, "ItemCategory_(\\d+)_11.csv$", "ItemCategory_$1_" + fields.muid + ".csv")
+				);
+				Utils.FileMove(
+					listPath,
+					Regex.Replace(listPath, "ItemList_(\\d+)_11_" + oldFields.muid + "(\\d+).csv$", "ItemList_$1_" + fields.muid + "_" + firstCategory + ".csv")
+				);
+			}
+			else if (changeState == GroupChangeState.FromCustomTo3DSE)
+			{
+				Utils.FileMove(
+					categoryPath,
+					Regex.Replace(categoryPath, "ItemCategory_(\\d+)_" + oldFields.muid + ".csv$", "ItemCategory_$1_11.csv")
+				);
+				Utils.FileMove(
+					listPath,
+					Regex.Replace(listPath, "ItemList_(\\d+)_" + oldFields.muid + "_(\\d+).csv$", "ItemList_$1_11_" + fields.muid + firstCategory + ".csv")
+				);
+			}
+			else if (changeState != GroupChangeState.NoChange)
+			{
+				Utils.FileMove(
+					categoryPath,
+					Regex.Replace(categoryPath, "ItemCategory_(\\d+)_" + oldFields.muid + ".csv$", "ItemCategory_$1_" + fields.muid + ".csv")
+				);
+				Utils.FileMove(
+					listPath,
+					Regex.Replace(listPath, "ItemList_(\\d+)_" + oldFields.muid + "_(\\d+).csv$", "ItemList_$1_" + fields.muid + "_" + firstCategory + ".csv")
+				);
+			} 
+			else if (firstCategory != itemFileAgg.GetModInfo().Item2)
+			{
+				Utils.FileMove(
+					listPath,
+					Regex.Replace(listPath, "ItemList_(\\d+)_" + fields.muid + "_(\\d+).csv$", "ItemList_$1_" + fields.muid + "_" + firstCategory + ".csv")
+				);
+			}
+
+			if (majorEdit)
+			{
+				// Rebuild CSV files from Sources
+				List<Category> categories = new CategoryManager().BuildFromSource(KK3DSEModManager.GetSourceFolderPath(sourcePath));
+				Utils.GenerationResult countA = CsvUtils.GenerateCSV(sourcePath, true, categories);
+				EditorUtility.ClearProgressBar();
+				Debug.Log("CSV -> Created: " + countA.createCount + " Updated: " + countA.updateCount + " Deleted: " + countA.deleteCount);
+			}
+			
+			fields.Save(Path.Combine(sourcePath, "manifest.xml"));
+			AssetDatabase.Refresh();
+			EditorUtility.DisplayDialog("Success", "Mod edited successfully.", "OK");
+			LoadForEdit(sourcePath);
 		}
 		catch (Exception e)
 		{

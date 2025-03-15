@@ -262,6 +262,17 @@ namespace IllusionMods.KoikatsuStudioCsv
 
 		public struct ItemFileAggregate
 		{
+			public enum Integrity
+			{
+				Valid,
+				InvalidGroupFile,
+				InvalidCategoryFile,
+				InvalidListFile,
+				MissingGroupFile,
+				MissingCategoryFile,
+				MissingListFile
+			}
+
 			private string[] _groupFiles;
 			private string[] _categoryFiles; 
 			private string[] _listFiles;
@@ -287,6 +298,48 @@ namespace IllusionMods.KoikatsuStudioCsv
 				this._listFiles = listFiles.OrderBy(x => x, new NaturalSortComparer()).ToArray();
 			}
 
+			public List<Integrity> ValidateIntegrity()
+			{
+				List<Integrity> results = new List<Integrity>();
+				if (_groupFiles.Length == 0)
+				{
+					results.Add(Integrity.MissingGroupFile);
+				}
+				else
+				{
+					foreach (string path in _groupFiles)
+					{
+						if (IsEmptyEntries<StudioGroup>(path))
+						{
+							results.Add(Integrity.InvalidGroupFile);
+						}
+					}
+				}
+
+				if (_categoryFiles.Length == 0)
+				{
+					results.Add(Integrity.MissingCategoryFile);
+				}
+
+				if (_listFiles.Length == 0)
+				{
+					results.Add(Integrity.MissingListFile);
+				}
+
+				Utils.Tuple<string> info = GetModInfo();
+				if (info.Item1 == null)
+				{
+					results.Add(Integrity.InvalidCategoryFile);
+				}
+
+				if (info.Item2 == null)
+				{
+					results.Add(Integrity.InvalidListFile);
+				}
+
+				return results;
+			}
+
 			public string GetDefaultGroupFile()
 			{
 				return _groupFiles.Length > 0 ? _groupFiles[0] : null;
@@ -302,36 +355,49 @@ namespace IllusionMods.KoikatsuStudioCsv
 				return _listFiles.Length > 0 ? _listFiles[0] : null;
 			}
 
-			public List<T> GetEntries<T>() where T : BaseCsvStudio
+			public string GetDefaultFile<T>() where T : BaseCsvStudio
 			{
-				string path = null;
 				if (typeof(T) == typeof(StudioGroup))
 				{
-					path = GetDefaultGroupFile();
+					return GetDefaultGroupFile();
 				}
 				else if (typeof(T) == typeof(StudioCategory))
 				{
-					path = GetDefaultCategoryFile();
+					return GetDefaultCategoryFile();
 				}
 				else if (typeof(T) == typeof(StudioItem))
 				{
-					path = GetDefaultListFile();
+					return GetDefaultListFile();
 				}
 				else
 				{
 					throw new InvalidOperationException("Invalid type: " + typeof(T).ToString());
 				}
-
-				return DeserializeCsvStudio<T>(path);
 			}
 
-			public T GetFirstEntry<T>() where T : BaseCsvStudio
+			public bool IsEmptyEntries<T>(string path = null) where T : BaseCsvStudio
 			{
-				return GetEntries<T>().FirstOrDefault();
+				return DeserializeCsvStudioIDs(path ?? GetDefaultFile<T>(), true).Count() == 0;
+			}
+
+			public string [] GetIDs<T>(string path = null) where T : BaseCsvStudio
+			{
+				return DeserializeCsvStudioIDs(path ?? GetDefaultFile<T>());
+			}
+
+			public List<T> GetEntries<T>(string path = null) where T : BaseCsvStudio
+			{
+				return DeserializeCsvStudio<T>(path ?? GetDefaultFile<T>());
+			}
+
+			public T GetFirstEntry<T>(string path = null) where T : BaseCsvStudio
+			{
+				return DeserializeCsvStudio<T>(path ?? GetDefaultFile<T>(), true).FirstOrDefault();
 			}
 
 			public Utils.Tuple<string> GetModInfo(bool raise_exec = false)
 			{
+				// Tuple.Item1 = Group Number, Tuple.Item2 = Category Number
 				Match match = Regex.Match(Path.GetFileName(GetDefaultListFile()), @"ItemList_(\d+)_(\d+)_(\d+).csv$");
 				if (!match.Success)
 				{
@@ -349,21 +415,6 @@ namespace IllusionMods.KoikatsuStudioCsv
 				{
 					return Utils.Tuple<string>.Create(match.Groups[2].Value, match.Groups[3].Value);
 				}
-			}
-
-			public string GetStudioItemTabName()
-			{
-				if (!File.Exists(GetDefaultGroupFile()))
-				{
-					return null;
-				}
-
-				foreach (StudioGroup group in CsvUtils.DeserializeCsvStudio<StudioGroup>(GetDefaultGroupFile()))
-				{
-					return group.name;
-				}
-
-				return null;
 			}
 
 			public void Refresh()
@@ -444,22 +495,22 @@ namespace IllusionMods.KoikatsuStudioCsv
 			SerializeCsvStudio(filePath, items);
 		}
 
-		public static List<T> DeserializeCsvStudio<T>(string filePath) where T : BaseCsvStudio
+		public static List<T> DeserializeCsvStudio<T>(string filePath, bool firstOnly = false) where T : BaseCsvStudio
 		{
 			List<T> items = new List<T>();
 			string[] lines = File.ReadAllLines(filePath);
-			for (int i = 1; i < lines.Length; i++)
+			for (int i = 1; i < (firstOnly ? 2 : lines.Length); i++)
 			{
 				items.Add((T)Activator.CreateInstance(typeof(T), lines[i]));
 			}
 			return items.OrderBy(x => int.Parse(x.GetID())).ToList();
 		}
 
-		public static string[] DeserializeCsvStudioIDs(string filePath)
+		public static string[] DeserializeCsvStudioIDs(string filePath, bool firstOnly = false)
 		{
 			string[] lines = File.ReadAllLines(filePath);
 			string[] ids = new string[lines.Length - 1];
-			for (int i = 1; i < lines.Length; i++)
+			for (int i = 1; i < (firstOnly ? 2 : lines.Length); i++)
 			{
 				ids[i - 1] = lines[i].Split(',')[0];
 			}

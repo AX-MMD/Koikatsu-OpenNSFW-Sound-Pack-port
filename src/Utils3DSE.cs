@@ -78,28 +78,6 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			public string description { get; set; }
 			public string website { get; set; }
 
-			public ManifestInfo(string manifestPath)
-			{
-				XmlDocument xmlDoc = new XmlDocument();
-				if (!File.Exists(manifestPath))
-				{
-					XmlElement manifest = xmlDoc.CreateElement("manifest");
-					xmlDoc.AppendChild(manifest);
-				}
-				else
-				{
-					xmlDoc.Load(manifestPath);
-				}
-
-				guid = GetXmlNodeValue(xmlDoc, "guid");
-				author = GetXmlNodeValue(xmlDoc, "author");
-				name = GetXmlNodeValue(xmlDoc, "name");
-				muid = GetXmlNodeValue(xmlDoc, "muid");
-				version = GetXmlNodeValue(xmlDoc, "version");
-				description = GetXmlNodeValue(xmlDoc, "description");
-				website = GetXmlNodeValue(xmlDoc, "website");
-			}
-
 			public ManifestInfo(string guid = "", string author = "", string name = "", string muid = "", string version = "", string description = "", string website = "")
 			{
 				this.guid = guid;
@@ -120,6 +98,28 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 				version = fields.ContainsKey("version") ? fields["version"] : "";
 				description = fields.ContainsKey("description") ? fields["description"] : "";
 				website = fields.ContainsKey("website") ? fields["website"] : "";
+			}
+
+			public static ManifestInfo Load(string manifestPath)
+			{
+				XmlDocument xmlDoc = new XmlDocument();
+				if (!File.Exists(manifestPath))
+				{
+					throw new FileNotFoundException("Manifest file not found: " + manifestPath);
+				}
+				else
+				{
+					xmlDoc.Load(manifestPath);
+				}
+				return new ManifestInfo(
+					GetXmlNodeValue(xmlDoc, "guid"),
+					GetXmlNodeValue(xmlDoc, "author"),
+					GetXmlNodeValue(xmlDoc, "name"),
+					GetXmlNodeValue(xmlDoc, "muid"),
+					GetXmlNodeValue(xmlDoc, "version"),
+					GetXmlNodeValue(xmlDoc, "description"),
+					GetXmlNodeValue(xmlDoc, "website")
+				);
 			}
 
 			public void Update<T>(T fields) where T : ManifestInfo
@@ -375,7 +375,7 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 
 		public static string GetModGuid(string modPath)
 		{
-			ManifestInfo manifestInfo = new ManifestInfo(Path.Combine(modPath, "manifest.xml"));
+			ManifestInfo manifestInfo = ManifestInfo.Load(Path.Combine(modPath, "manifest.xml"));
 			if (string.IsNullOrEmpty(manifestInfo.guid))
 			{
 				throw new Exception("GUID not found in manifest file: " + Path.Combine(modPath, "manifest.xml"));
@@ -501,8 +501,8 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 
 		public static void FileReplace(string sourcePath, string destPath)
 		{
-			File.Delete(Path.GetFullPath(destPath));
-			FileMove(sourcePath, destPath);
+			File.Delete(Path.GetFullPath(sourcePath));
+			FileMove(destPath, sourcePath);
 		}
 
 		public static void FileDelete(string path)

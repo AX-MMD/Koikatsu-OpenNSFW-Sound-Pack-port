@@ -85,7 +85,7 @@ namespace IllusionMods.Koikatsu3DSEModTools
 
 			if (overwrite && File.Exists(outputFilePath))
 			{
-				Utils.FileReplace(outputFilePath, filePath);
+				Utils.FileReplace(filePath, outputFilePath);
 			}
 		}
 
@@ -124,7 +124,7 @@ namespace IllusionMods.Koikatsu3DSEModTools
 
 			if (overwrite && File.Exists(outputPath))
 			{
-				Utils.FileReplace(outputPath, filePath);
+				Utils.FileReplace(filePath, outputPath);
 			}
 		}
 
@@ -191,7 +191,7 @@ namespace IllusionMods.Koikatsu3DSEModTools
 
 			if (overwrite && File.Exists(outputFilePath))
 			{
-				Utils.FileReplace(outputFilePath, inputFilePath);
+				Utils.FileReplace(inputFilePath, outputFilePath);
 			}
 		}
 
