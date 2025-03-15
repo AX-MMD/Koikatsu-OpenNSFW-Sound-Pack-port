@@ -15,7 +15,8 @@ public class TagEditor : MonoBehaviour
 		// If is a side panel folder or singular object, check if it is a Sources folder or subfolder of Sources from a 3DSE mod
 		if (Selection.activeObject != null)
 		{
-			return Path.GetExtension(AssetDatabase.GetAssetPath(Selection.activeObject)) == TagManager.FileExtention;
+			string path = AssetDatabase.GetAssetPath(Selection.activeObject);
+			return AssetDatabase.IsValidFolder(path) || Path.GetExtension(path) == TagManager.FileExtention;
 		}
 		else if (Selection.assetGUIDs.Length == 1 && Selection.objects.Length <= 1)
         {
@@ -49,7 +50,7 @@ public class TagEditor : MonoBehaviour
 		{
 			selectedPath = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]);
 		}
-		
+
 		TagEditorWindow.ShowWindow(selectedPath);
 	}
 }

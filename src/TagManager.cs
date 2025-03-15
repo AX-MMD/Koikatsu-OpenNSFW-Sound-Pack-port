@@ -57,11 +57,17 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 		public static List<string> LoadTags(string folderPath)
 		{
 			List<string> tags = new List<string>();
+			string tag;
 			foreach (string file in Directory.GetFiles(folderPath, "*" + FileExtention))
 			{
 				MatchCollection matches = Regex.Matches(Path.GetFileName(file), @"\[(?<tags>[^\]]+)\]");
 				foreach (Match match in matches)
 				{
+					tag = match.Groups["tags"].Value;
+					if (!IsValidTag(tag))
+					{
+						throw new ValidationError(string.Format("Invalid tag '{0}'\n\nValid tags are:\n {1}", tag, string.Join("\n  ", new List<string>(ValidTags).ToArray())));
+					}
 					tags.Add(match.Groups["tags"].Value);
 				}
 			}
@@ -138,8 +144,8 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 					throw new ValidationError("Tags must be enclosed in brackets.");
 				}
 				else if (!IsValidTagsString(tagsInput))
-				{
-					throw new ValidationError(string.Format("Invalid tags {0}, valid tags are: {1}", tagsInput, string.Join(", ", new List<string>(ValidTags).ToArray())));
+				{	
+					throw new ValidationError(string.Format("Invalid tags '{0}'\n\nValid tags are:\n{1}", tagsInput, string.Join("\n  ", new List<string>(ValidTags).ToArray())));
 				}
 
 				string tagFilePath = Path.Combine(folderPath, tagsInput + FileExtention);
