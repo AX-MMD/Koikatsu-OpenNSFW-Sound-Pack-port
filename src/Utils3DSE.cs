@@ -539,8 +539,8 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 
 			foreach (string guid in Selection.assetGUIDs)
 			{
-				selectedPath = AssetDatabase.GUIDToAssetPath(guid);
-				if (IsValidModPath(selectedPath))
+				selectedPath = GetModPath(AssetDatabase.GUIDToAssetPath(guid));
+				if (selectedPath != null)
 				{
 					found.Add(selectedPath);
 				}
@@ -548,8 +548,8 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 
 			if (found.Count == 0 && Selection.activeObject != null)
 			{
-				selectedPath = AssetDatabase.GetAssetPath(Selection.activeObject);
-				if (AssetDatabase.IsValidFolder(selectedPath) && Utils.IsValidModPath(selectedPath))
+				selectedPath = GetModPath(AssetDatabase.GetAssetPath(Selection.activeObject));
+				if (selectedPath != null)
 				{
 					found.Add(selectedPath);
 				}
