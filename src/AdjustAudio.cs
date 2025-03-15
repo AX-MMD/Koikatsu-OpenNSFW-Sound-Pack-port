@@ -176,7 +176,6 @@ public class AdjustAudioWindow : EditorWindow
 					AssetDatabase.Refresh();
 				}
 				EditorUtility.DisplayDialog("Success", string.Format("Adjustment completed for {0} files", fileCount), "OK");
-				this.Close();
 			}
 			catch (Exception e)
 			{
