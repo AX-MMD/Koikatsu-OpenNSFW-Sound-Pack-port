@@ -52,7 +52,11 @@ In short, the terms and conditions to publish works that use audio content from 
 * Don't repack the audio content under a different Sound Pack.
 * Attribute credits when publishing works that use the OpenNSFW Sound Pack.
 
-Credit attribution for smaller projects/loops:
+# Credit attribution 
+
+### OpenNSFW main library
+
+For smaller projects/loops:
 
 > SFX Pack: @OpenNSFWSP
 
@@ -63,6 +67,16 @@ For anything larger and/or with a credits section, include every individual arti
 Or
 
 > SFX Pack: @authorA @authorB @OpenNSFWSP
+
+### Using a VA pack
+
+> VA Pack: @name of talent | @OpenNSFWSP
+
+Or
+
+> VA Pack: @name of talent
+> SFX Pack: @OpenNSFWSP
+
 
 # Downloads
 
@@ -126,17 +140,30 @@ OpenNSFW 声優 ライブラリ: 部分的
 *  オーディオコンテンツを別のオーディオパッケージで再配布しないでください。
 *  OpenNSFWサウンドパックを使用した作品を公開する際の表示クレジット。
 
-小規模なプロジェクトやループのクレジット表示：
+# クレジットの帰属 
 
-> SFX Pack: @OpenNSFWSP
+### OpenNSFWメインライブラリ
 
-規模が大きいもの、および／またはクレジット・セクションがあるものについては、個々のアーティスト／貢献者を含めてください。
+小規模なプロジェクト/ループの場合
 
-> SFX Pack: @著者名 | @OpenNSFWSP
+> SFX Pack：@OpenNSFWSP
 
-か
+大きなプロジェクトやクレジットセクションがある場合は、個々のアーティストやコントリビューターを含めてください。
 
-> SFX Pack: @著者名A @著者名B @OpenNSFWSP
+> SFX Pack： @作者名｜@OpenNSFWSP
+
+または
+
+> SFX Pack: @作者名A @作者名B @OpenNSFWSP
+
+### VA パックの使用
+
+> VA Pack： @タレント名｜@OpenNSFWSP
+
+または
+
+> VA Pack： タレント名
+> SFX Pack： オープンNSFWSP
 
 # ダウンロード
 
