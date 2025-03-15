@@ -68,6 +68,9 @@ Or
 
 Releases page: https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/
 
+Legacy mod for scenes made pre v2.0: 
+https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/tag/v1.5.1
+
 .  
 .  
 .  
@@ -138,6 +141,9 @@ OpenNSFW 声優 ライブラリ: 部分的
 # ダウンロード
 
 リリースページ: https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/
+
+レガシーサポート (シーン配布 < mod v2.0):
+https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/tag/v1.5.1
 
 
 
