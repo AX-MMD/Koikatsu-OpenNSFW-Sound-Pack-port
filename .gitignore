@@ -7,3 +7,4 @@ mods/*/Prefab/**/*.prefab
 *.zip
 *.wav
 *.mp3
+/mods/**/Studio_Thumbs
