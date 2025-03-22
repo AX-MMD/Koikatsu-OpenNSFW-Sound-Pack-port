@@ -36,7 +36,7 @@ public class New3DSEMod : MonoBehaviour
 		string destinationPath;
 		if (create)
 		{
-			sourcePath = "Assets/Examples/Studio 3DSE Example";
+			sourcePath = "Assets/Examples/Studio 3DSE Template";
 			destinationPath = "Assets/Mods";
 			if (!Directory.Exists(sourcePath))
 			{
@@ -82,14 +82,14 @@ public class Modify3DSEModWindow : EditorWindow
 	private static string sourcePath;
 	private static string destinationPath;
 	private static bool createMode;
-	private static string itemGroupName = "3DSE";
-	private static string oldItemGroupName = null;
+	private static string itemGroupName;
+	private static string oldItemGroupName;
 	private static CsvUtils.ItemFileAggregate itemFileAgg;
-	private static Utils.ManifestInfo fields = new Utils.ManifestInfo();
+	private static Utils.ManifestInfo fields;
 	private static Utils.ManifestInfo oldFields;
-	private static string[] studioTabs = new string[] { "3DSE", "Custom"};
-	private static int studioTabMode = 0;
-	private static string firstCategory = "01";
+	private static string[] studioTabs;
+	private static int studioTabMode;
+	private static string firstCategory;
 
 	public Modify3DSEModWindow()
 	{
@@ -102,6 +102,13 @@ public class Modify3DSEModWindow : EditorWindow
 		createMode = create;
 		if (create)
 		{
+			itemGroupName = "3DSE";
+			oldItemGroupName = null;
+			fields = new Utils.ManifestInfo();
+			oldFields = null;
+			studioTabs = new string[] { "3DSE", "Custom" };
+			studioTabMode = 0;
+			firstCategory = "01";
 			GetWindow<Modify3DSEModWindow>("New 3DSE Mod");
 		}
 		else
@@ -247,7 +254,7 @@ public class Modify3DSEModWindow : EditorWindow
 			File.Create(Path.Combine(itemFileAgg.csvFolder, "ItemCategory_00_" + groupNumber + ".csv")).Close();
 			itemFileAgg.Refresh();
 		}
-		
+
 
 		// ItemList integrity
 		if (itemFileAgg.GetDefaultListFile() == null)
@@ -358,13 +365,17 @@ public class Modify3DSEModWindow : EditorWindow
 				itemFileAgg.Refresh();
 			}
 		}
+		else if (GUILayout.Button("Close"))
+		{
+			this.Close();
+		}
 	}
 
 	private bool IsChanged()
 	{
 		return Utils.ManifestInfo.Load(Path.Combine(sourcePath, "manifest.xml")) != fields 
-		|| itemGroupName != oldItemGroupName
-		|| firstCategory != itemFileAgg.GetModInfo().Item2;
+			|| itemGroupName != oldItemGroupName
+			|| firstCategory != itemFileAgg.GetModInfo().Item2;
 	}
 
 	private bool ValidateFields()
@@ -552,7 +563,7 @@ public class Modify3DSEModWindow : EditorWindow
 				EditorUtility.ClearProgressBar();
 				Debug.Log("CSV -> Created: " + countA.createCount + " Updated: " + countA.updateCount + " Deleted: " + countA.deleteCount);
 			}
-			
+
 			fields.Save(Path.Combine(sourcePath, "manifest.xml"));
 			AssetDatabase.Refresh();
 			EditorUtility.DisplayDialog("Success", "Mod edited successfully.", "OK");

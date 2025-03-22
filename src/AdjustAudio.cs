@@ -184,10 +184,13 @@ public class AdjustAudioWindow : EditorWindow
 				EditorUtility.DisplayDialog("Error", e.Message, "OK");
 			}
 		}
-
-		if (GUILayout.Button("Reset Defaults"))
+		else if (GUILayout.Button("Reset Defaults"))
 		{
 			ResetDefaults();
+		}
+		else if (GUILayout.Button("Close"))
+		{
+			this.Close();
 		}
 	}
 

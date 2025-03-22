@@ -48,6 +48,15 @@ def create_release_zip(folder_path, zipmod_path, release_version, name, version)
     with zipfile.ZipFile(release_path, 'w', zipfile.ZIP_STORED) as zipf:
         # Add the zipmod file
         zipf.write(zipmod_path, os.path.basename(zipmod_path))
+
+        # Add the contents of the credits folder if it exists in the mod folder
+        credits_folder_path = os.path.join(folder_path, "credits")
+        if os.path.exists(credits_folder_path):
+            for root, dirs, files in os.walk(credits_folder_path):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    arcname = os.path.relpath(file_path, folder_path)
+                    zipf.write(file_path, arcname)
         
         # Add other files and folders excluding manifest.xml and abdata
         for root, dirs, files in os.walk(folder_path):

@@ -390,9 +390,9 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 		{
 			// Get the directory separator character from selectedPath
 			string[] directories = selectedPath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar);
-			for (int i = 0; i < directories.Length; i++)
+			for (int i = directories.Length - 2; i > 0; i--)
 			{
-				if (directories[i] == "Mods" && i + 1 < directories.Length)
+				if (directories[i] == "Mods")
 				{
 					return string.Join(Path.DirectorySeparatorChar.ToString(), directories, 0, i + 2);
 				}
