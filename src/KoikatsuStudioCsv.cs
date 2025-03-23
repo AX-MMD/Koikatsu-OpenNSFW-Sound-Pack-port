@@ -260,7 +260,7 @@ namespace IllusionMods.KoikatsuStudioCsv
 			}
 		}
 
-		public struct ItemFileAggregate
+		public class ItemFileAggregate
 		{
 			public enum Integrity
 			{
@@ -273,9 +273,13 @@ namespace IllusionMods.KoikatsuStudioCsv
 				MissingListFile
 			}
 
-			private string[] _groupFiles;
-			private string[] _categoryFiles; 
-			private string[] _listFiles;
+			private string[] _groupFiles = null;
+			private string[] _categoryFiles = null; 
+			private string[] _listFiles = null;
+
+			public string modGroupNumber = null;
+			public string modCategoryNumber = null;
+
 			public string[] groupFiles 
 			{ 
 				get { return (string[])_groupFiles.Clone (); }
@@ -290,12 +294,48 @@ namespace IllusionMods.KoikatsuStudioCsv
 			}
 			public string csvFolder { get; private set; }
 
+
 			public ItemFileAggregate(string csvFolder, string[] groupFiles, string[] categoryFiles, string[] listFiles)
 			{
 				this.csvFolder = csvFolder;
+				Init(groupFiles, categoryFiles, listFiles);
+			}
+
+			private void Init(string[] groupFiles, string[] categoryFiles, string[] listFiles)
+			{
 				this._groupFiles = groupFiles.OrderBy(x => x, new NaturalSortComparer()).ToArray();
 				this._categoryFiles = categoryFiles.OrderBy(x => x, new NaturalSortComparer()).ToArray();
 				this._listFiles = listFiles.OrderBy(x => x, new NaturalSortComparer()).ToArray();
+				LoadModInfoFromItemFiles();
+			}
+
+			public void Refresh()
+			{
+				this.Init(
+					Directory.GetFiles(csvFolder, "ItemGroup_*.csv"),
+					Directory.GetFiles(csvFolder, "ItemCategory_*.csv"),
+					Directory.GetFiles(csvFolder, "ItemList_*.csv")
+				);
+			}
+
+			private void LoadModInfoFromItemFiles()
+			{
+				Match match;
+				if ((match = Regex.Match(Path.GetFileName(GetDefaultListFile()), @"ItemList_(\d+)_(\d+)_(\d+).csv$")).Success)
+				{
+					modGroupNumber = match.Groups[2].Value;
+					modCategoryNumber = match.Groups[3].Value;
+				}
+				else if ((match = Regex.Match(Path.GetFileName(GetDefaultCategoryFile()), @"ItemCategory_(\d+)_(\d+).csv$")).Success)
+				{
+					modGroupNumber = match.Groups[2].Value;
+					modCategoryNumber = null;
+				}
+				else
+				{
+					modGroupNumber = null;
+					modCategoryNumber = null;
+				}
 			}
 
 			public List<Integrity> ValidateIntegrity()
@@ -326,13 +366,12 @@ namespace IllusionMods.KoikatsuStudioCsv
 					results.Add(Integrity.MissingListFile);
 				}
 
-				Utils.Tuple<string> info = GetModInfo();
-				if (info.Item1 == null)
+				if (this.modGroupNumber == null)
 				{
 					results.Add(Integrity.InvalidCategoryFile);
 				}
 
-				if (info.Item2 == null)
+				if (this.modCategoryNumber == null)
 				{
 					results.Add(Integrity.InvalidListFile);
 				}
@@ -393,35 +432,6 @@ namespace IllusionMods.KoikatsuStudioCsv
 			public T GetFirstEntry<T>(string path = null) where T : BaseCsvStudio
 			{
 				return DeserializeCsvStudio<T>(path ?? GetDefaultFile<T>(), true).FirstOrDefault();
-			}
-
-			public Utils.Tuple<string> GetModInfo(bool raise_exec = false)
-			{
-				// Tuple.Item1 = Group Number, Tuple.Item2 = Category Number
-				Match match = Regex.Match(Path.GetFileName(GetDefaultListFile()), @"ItemList_(\d+)_(\d+)_(\d+).csv$");
-				if (!match.Success)
-				{
-					if (raise_exec)
-					{
-						throw new FormatException("Incorrect ItemList_*csv name, format should be ItemList_<number>_<number>_<number>.csv: " + GetDefaultListFile());
-					}
-					else
-					{
-						match = Regex.Match(Path.GetFileName(GetDefaultCategoryFile()), @"ItemCategory_(\d+)_(\d+).csv$");
-						return Utils.Tuple<string>.Create (match.Success ? match.Groups [2].Value : null, null);
-					}
-				}
-				else
-				{
-					return Utils.Tuple<string>.Create(match.Groups[2].Value, match.Groups[3].Value);
-				}
-			}
-
-			public void Refresh()
-			{
-				_groupFiles = Directory.GetFiles(csvFolder, "ItemGroup_*.csv").OrderBy(x => x, new NaturalSortComparer()).ToArray();
-				_categoryFiles = Directory.GetFiles(csvFolder, "ItemCategory_*.csv").OrderBy(x => x, new NaturalSortComparer()).ToArray();
-				_listFiles = Directory.GetFiles(csvFolder, "ItemList_*.csv").OrderBy(x => x, new NaturalSortComparer()).ToArray();
 			}
 		} 
 
@@ -499,7 +509,8 @@ namespace IllusionMods.KoikatsuStudioCsv
 		{
 			List<T> items = new List<T>();
 			string[] lines = File.ReadAllLines(filePath);
-			for (int i = 1; i < (firstOnly ? 2 : lines.Length); i++)
+			int stopIter = firstOnly ? Math.Min(2, lines.Length) : lines.Length;
+			for (int i = 1; i < stopIter; i++)
 			{
 				items.Add((T)Activator.CreateInstance(typeof(T), lines[i]));
 			}
@@ -510,7 +521,8 @@ namespace IllusionMods.KoikatsuStudioCsv
 		{
 			string[] lines = File.ReadAllLines(filePath);
 			string[] ids = new string[lines.Length - 1];
-			for (int i = 1; i < (firstOnly ? 2 : lines.Length); i++)
+			int stopIter = firstOnly ? Math.Min(2, lines.Length) : lines.Length;
+			for (int i = 1; i < stopIter; i++)
 			{
 				ids[i - 1] = lines[i].Split(',')[0];
 			}
@@ -562,9 +574,8 @@ namespace IllusionMods.KoikatsuStudioCsv
 				}
 			}
 
-			Utils.Tuple<string> info = csvAgg.GetModInfo(true);
-			string groupNumber = info.Item1;
-			string categoryNumber = info.Item2;
+			string groupNumber = csvAgg.modGroupNumber;
+			string categoryNumber = csvAgg.modCategoryNumber;
 			int id = 1;
 
 			Dictionary<string, StudioCategory> newCategories = new Dictionary<string, StudioCategory>();

@@ -100,15 +100,15 @@ public class Modify3DSEModWindow : EditorWindow
 		sourcePath = srcPath;
 		destinationPath = destPath;
 		createMode = create;
+		itemGroupName = "3DSE";
+		oldItemGroupName = null;
+		fields = new Utils.ManifestInfo(version: "1.0");
+		oldFields = null;
+		studioTabs = new string[] { "3DSE", "Custom" };
+		studioTabMode = 0;
+		firstCategory = "01";
 		if (create)
 		{
-			itemGroupName = "3DSE";
-			oldItemGroupName = null;
-			fields = new Utils.ManifestInfo();
-			oldFields = null;
-			studioTabs = new string[] { "3DSE", "Custom" };
-			studioTabMode = 0;
-			firstCategory = "01";
 			GetWindow<Modify3DSEModWindow>("New 3DSE Mod");
 		}
 		else
@@ -204,12 +204,12 @@ public class Modify3DSEModWindow : EditorWindow
 		if (itemGroupName == "3DSE")
 		{
 			studioTabMode = 0;
-			firstCategory = ConvertCategoryNumber(itemFileAgg.GetModInfo().Item2, GroupChangeState.From3DSEToCustom);
+			firstCategory = ConvertCategoryNumber(itemFileAgg.modCategoryNumber, GroupChangeState.From3DSEToCustom);
 		}
 		else
 		{
 			studioTabMode = 1;
-			firstCategory = itemFileAgg.GetModInfo().Item2;
+			firstCategory = itemFileAgg.modCategoryNumber;
 		}
 	}
 
@@ -217,7 +217,7 @@ public class Modify3DSEModWindow : EditorWindow
 	{
 		if ( ! (new string[] { itemFileAgg.GetDefaultGroupFile(), itemFileAgg.GetDefaultCategoryFile(), itemFileAgg.GetDefaultListFile() }.Contains(null)))
 		{
-			return;
+			return; // All files are present, all is good
 		}
 
 		if ( ! EditorUtility.DisplayDialog("Rebuild Data Files", "Some List/Studio files are missing or corrupt, try to rebuild?", "Yes", "No"))
@@ -225,11 +225,10 @@ public class Modify3DSEModWindow : EditorWindow
 			throw new Exception("Rebuild aborted by user");
 		}
 
-		Utils.Tuple<string> modInfo = itemFileAgg.GetModInfo();
 		// If null, both ItemGroup and ItemCategory files are missing or have an incorrect name.
-		string groupNumber = modInfo.Item1;
+		string groupNumber = itemFileAgg.modGroupNumber;
 		// If null, ItemList file is missing or has an incorrect name.
-		string categoryNumber = modInfo.Item2; 
+		string categoryNumber = itemFileAgg.modCategoryNumber; 
 		// If both ItemCategory and ItemList files are missing, rebuild assuming default (11, 3DSE).
 		string groupName;
 
@@ -375,7 +374,7 @@ public class Modify3DSEModWindow : EditorWindow
 	{
 		return Utils.ManifestInfo.Load(Path.Combine(sourcePath, "manifest.xml")) != fields 
 			|| itemGroupName != oldItemGroupName
-			|| firstCategory != itemFileAgg.GetModInfo().Item2;
+			|| firstCategory != itemFileAgg.modCategoryNumber;
 	}
 
 	private bool ValidateFields()
@@ -484,7 +483,7 @@ public class Modify3DSEModWindow : EditorWindow
 		{
 			bool majorEdit = false;
 			GroupChangeState changeState = GetGroupChangeState(oldItemGroupName, itemGroupName);
-			if ((changeState != GroupChangeState.NoChange || firstCategory != itemFileAgg.GetModInfo().Item2) && itemFileAgg.GetFirstEntry<CsvUtils.StudioCategory>() != null)
+			if ((changeState != GroupChangeState.NoChange || firstCategory != itemFileAgg.modCategoryNumber) && itemFileAgg.GetFirstEntry<CsvUtils.StudioCategory>() != null)
 			{
 				if ( ! EditorUtility.DisplayDialog("Major Edit", "Changing 3DSE <-> Custom or First Category # will re-create CSV files from Sources. \n\nContinue?", "Yes", "No"))
 				{
@@ -547,7 +546,7 @@ public class Modify3DSEModWindow : EditorWindow
 					Regex.Replace(listPath, "ItemList_(\\d+)_" + oldFields.muid + "_(\\d+).csv$", "ItemList_$1_" + fields.muid + "_" + firstCategory + ".csv")
 				);
 			} 
-			else if (firstCategory != itemFileAgg.GetModInfo().Item2)
+			else if (firstCategory != itemFileAgg.modCategoryNumber)
 			{
 				Utils.FileMove(
 					listPath,
@@ -572,33 +571,6 @@ public class Modify3DSEModWindow : EditorWindow
 		catch (Exception e)
 		{
 			throw e;
-		}
-	}
-
-	private void UpdateCategories(string path, Func<string, string> LambdaReplace)
-	{
-		List<CsvUtils.StudioCategory> categories = CsvUtils.DeserializeCsvStudio<CsvUtils.StudioCategory>(path);
-		if (categories.Count != 0)
-		{
-			foreach (CsvUtils.StudioCategory category in categories)
-			{
-				category.categoryNumber = LambdaReplace(category.categoryNumber);
-			}
-			CsvUtils.WriteToCsv(path, categories);
-		}
-	}
-
-	private void UpdateItems(string path, Func<string, string> LambdaReplace)
-	{
-		List<CsvUtils.StudioItem> items = CsvUtils.DeserializeCsvStudio<CsvUtils.StudioItem>(path);
-		if (items.Count != 0)
-		{
-			foreach (CsvUtils.StudioItem item in items)
-			{
-				item.groupNumber = itemGroupName == "3DSE" ? "11" : fields.muid;
-				item.categoryNumber = LambdaReplace(item.categoryNumber);
-			}
-			CsvUtils.WriteToCsv(path, items);
 		}
 	}
 }
