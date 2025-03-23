@@ -16,8 +16,12 @@ public class MakeThumbs : MonoBehaviour
 
     public static IEnumerable<string> GetSelected()
     {
-        string sPath = AssetDatabase.GetAssetPath(Selection.activeObject);
-        if (AssetDatabase.IsValidFolder(sPath) && Utils.IsValidModPath(sPath) && Path.GetFileName(sPath) == "Studio_Thumbs")
+        string sPath = Utils.GetLastSelectedPath();
+        if (sPath == null || !(AssetDatabase.IsValidFolder(sPath) && Utils.IsValidModPath(sPath)))
+        {
+            return new string[] { };
+        }
+        else if (Path.GetFileName(sPath) == "Studio_Thumbs")
         {
             return new string[] { sPath };
         }
@@ -27,7 +31,7 @@ public class MakeThumbs : MonoBehaviour
         }
     }
 
-    [MenuItem("Assets/3DSE/Tools/Make Thumbnails")]
+    [MenuItem("Assets/3DSE/Tools/Make Thumbnails", false, 8)]
     public static void MakeThumbnails()
     {
         IEnumerable<string> selectedPaths = GetSelected();

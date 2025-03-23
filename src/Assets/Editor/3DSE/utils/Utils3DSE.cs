@@ -532,6 +532,16 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			return fullPath.Substring(index);
 		}
 
+		public static string GetLastSelectedPath()
+		{
+			if (Selection.assetGUIDs.Length == 0)
+			{
+				return null;
+			}
+			
+			return AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[Selection.assetGUIDs.Length - 1]);
+		}
+
 		public static List<string> GetSelectedModPaths()
 		{
 			List<string> found = new List<string>();

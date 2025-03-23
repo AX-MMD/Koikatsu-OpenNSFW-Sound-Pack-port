@@ -9,10 +9,10 @@ using IllusionMods.Koikatsu3DSECategoryTool;
 
 public class GenerateFromSource : MonoBehaviour
 {
-	[MenuItem("Assets/3DSE/Generation Tools/Create From Source", true)]
-	[MenuItem("Assets/3DSE/Generation Tools/Update From Source", true)]
-	[MenuItem("Assets/3DSE/Generation Tools/Create CSV From Source", true)]
-	[MenuItem("Assets/3DSE/Generation Tools/Update CSV From Source", true)]
+	[MenuItem("Assets/3DSE/Generation Tools/Create From Source", true, 3)]
+	[MenuItem("Assets/3DSE/Generation Tools/Update From Source", true, 4)]
+	[MenuItem("Assets/3DSE/Generation Tools/Create CSV From Source", true, 5)]
+	[MenuItem("Assets/3DSE/Generation Tools/Update CSV From Source", true, 6)]
 	private static bool ValidateGenerate()
 	{
 		return Utils.GetSelected3DSEModPaths().Count > 0;

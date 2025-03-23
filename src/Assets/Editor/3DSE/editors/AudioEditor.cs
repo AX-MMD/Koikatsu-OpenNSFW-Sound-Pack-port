@@ -8,7 +8,7 @@ using IllusionMods.Koikatsu3DSEModTools;
 
 public class AdjustAudio : MonoBehaviour
 {
-	[MenuItem("Assets/3DSE/Adjust Audio", true)]
+	[MenuItem("Assets/3DSE/Tools/Adjust Audio", true)]
 	public static bool ValidateAdjust()
 	{
 		foreach (string guid in Selection.assetGUIDs)
@@ -23,7 +23,7 @@ public class AdjustAudio : MonoBehaviour
 		return Selection.assetGUIDs.Length > 0;
 	}
 
-	[MenuItem("Assets/3DSE/Adjust Audio")]
+	[MenuItem("Assets/3DSE/Tools/Adjust Audio", false, 7)]
 	public static void Adjust()
 	{
 		AdjustAudioWindow.ShowWindow();
@@ -139,7 +139,9 @@ public class AdjustAudioWindow : EditorWindow
 		overwrite = EditorGUILayout.Toggle("Overwrite Files", overwrite);
 		skipAssetReload = EditorGUILayout.Toggle("Skip Assets Refresh", skipAssetReload);
 
-		if (this.IsValid() && GUILayout.Button("Adjust Audio"))
+		GUILayout.BeginHorizontal();
+		GUILayout.FlexibleSpace();
+		if (this.IsValid() && GUILayout.Button("Adjust Audio", GUILayout.Width(position.width / 2)))
 		{
 			try
 			{
@@ -184,14 +186,26 @@ public class AdjustAudioWindow : EditorWindow
 				EditorUtility.DisplayDialog("Error", e.Message, "OK");
 			}
 		}
-		else if (GUILayout.Button("Reset Defaults"))
+		GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
+
+		GUILayout.BeginHorizontal();
+		GUILayout.FlexibleSpace();
+		if (GUILayout.Button("Reset Defaults", GUILayout.Width(position.width / 2)))
 		{
 			ResetDefaults();
 		}
-		else if (GUILayout.Button("Close"))
+		GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
+		
+		GUILayout.BeginHorizontal();
+		GUILayout.FlexibleSpace();
+		if (GUILayout.Button("Close", GUILayout.Width(position.width / 2)))
 		{
 			this.Close();
 		}
+		GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
 	}
 
 	private void ResetDefaults()

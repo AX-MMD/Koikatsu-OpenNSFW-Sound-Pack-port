@@ -12,19 +12,19 @@ using IllusionMods.Koikatsu3DSECategoryTool;
 
 public class New3DSEMod : MonoBehaviour
 {
+	[MenuItem("Assets/3DSE/New 3DSE Mod", false, 0)]
+	public static void MakeNew3DSEMod(MenuCommand command)
+	{
+		Modify3DSEMod(true, command);
+	}
+
 	[MenuItem("Assets/3DSE/Edit 3DSE Mod", true)]
 	public static bool ValidateEdit3DSEMod()
 	{
 		return Utils.GetSelected3DSEModPaths().Count == 1;
 	}
 
-	[MenuItem("Assets/3DSE/New 3DSE Mod")]
-	public static void MakeNew3DSEMod(MenuCommand command)
-	{
-		Modify3DSEMod(true, command);
-	}
-
-	[MenuItem("Assets/3DSE/Edit 3DSE Mod")]
+	[MenuItem("Assets/3DSE/Edit 3DSE Mod", false, 1)]
 	public static void Edit3DSEMod(MenuCommand command)
 	{
 		Modify3DSEMod(false, command);
@@ -343,7 +343,9 @@ public class Modify3DSEModWindow : EditorWindow
 			fields.guid = Utils.MakeModGuid(fields.author, fields.name);
 		}
 
-		if (GUILayout.Button(createMode ? "Create" : "Save") && (createMode || IsChanged()))
+		GUILayout.BeginHorizontal();
+		GUILayout.FlexibleSpace();
+		if (GUILayout.Button(createMode ? "Create" : "Save", GUILayout.Width(position.width / 2)) && (createMode || IsChanged()))
 		{
 			try
 			{
@@ -364,10 +366,17 @@ public class Modify3DSEModWindow : EditorWindow
 				itemFileAgg.Refresh();
 			}
 		}
-		else if (GUILayout.Button("Close"))
+		GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
+
+		GUILayout.BeginHorizontal();
+		GUILayout.FlexibleSpace();
+		if (GUILayout.Button("Close", GUILayout.Width(position.width / 2)))
 		{
 			this.Close();
 		}
+		GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
 	}
 
 	private bool IsChanged()

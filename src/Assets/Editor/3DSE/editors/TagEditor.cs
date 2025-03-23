@@ -7,55 +7,42 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using IllusionMods.Koikatsu3DSEModTools;
 
-
 public class TagEditor : MonoBehaviour
 {
 	[MenuItem("Assets/3DSE/Edit 3dse tags", true)]
 	private static bool ValidateCreateTagFiles()
 	{
-		// If is a side panel folder or singular object, check if it is a Sources folder or subfolder of Sources from a 3DSE mod
-		if (Selection.activeObject != null)
+		string path = Utils.GetLastSelectedPath();
+		if (path == null)
 		{
-			string path = AssetDatabase.GetAssetPath(Selection.activeObject);
-			return AssetDatabase.IsValidFolder(path) || Path.GetExtension(path) == TagManager.FileExtention;
+			return false;
 		}
-		else if (Selection.assetGUIDs.Length == 1 && Selection.objects.Length <= 1)
+		else if (Path.GetExtension(path) == TagManager.FileExtention)
 		{
-			string path = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]);
-			if (AssetDatabase.IsValidFolder(path) && Utils.IsValid3DSEModPath(Utils.GetModPath(path)))
+			return true;
+		}
+		else if (Utils.IsValid3DSEModPath(Utils.GetModPath(path)))
+		{
+			// Check if the file/folder is in Sources folder or subfolder of Sources
+			string[] directories = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar);
+			for (int i = 0; i < directories.Length; i++)
 			{
-				string[] directories = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar);
-				for (int i = 0; i < directories.Length; i++)
+				if (directories[i] == "Sources")
 				{
-					if (directories[i] == "Sources")
-					{
-						return true;
-					}
+					return true;
 				}
 			}
 		}
 
-
 		return false;
 	}
 
-	[MenuItem("Assets/3DSE/Edit 3dse tags")]
+	[MenuItem("Assets/3DSE/Edit 3dse tags", false, 2)]
 	public static void CreateTagFiles()
 	{
-		string selectedPath;
-		if (Selection.activeObject != null)
-		{
-			selectedPath = AssetDatabase.GetAssetPath(Selection.activeObject);
-		}
-		else
-		{
-			selectedPath = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]);
-		}
-
-		TagEditorWindow.ShowWindow(selectedPath);
+		TagEditorWindow.ShowWindow(Utils.GetLastSelectedPath());
 	}
 }
-
 
 public class TagEditorWindow : EditorWindow
 {
@@ -92,11 +79,13 @@ public class TagEditorWindow : EditorWindow
 
 		GUILayout.Space(10);
 
-		GUILayout.Label("Add Tags:", EditorStyles.boldLabel);
+		GUILayout.Label("Tags:", EditorStyles.boldLabel);
 		validTagsScrollPos = EditorGUILayout.BeginScrollView(validTagsScrollPos, GUILayout.Height(150));
 		foreach (string validTag in TagManager.ValidTags)
 		{
-			if (GUILayout.Button(validTag))
+			EditorGUILayout.BeginHorizontal();
+			GUILayout.Label(validTag);
+			if (GUILayout.Button("Add", GUILayout.Width(60)))
 			{
 				if (TagManager.ValueTags.Contains(validTag))
 				{
@@ -113,12 +102,15 @@ public class TagEditorWindow : EditorWindow
 					currentTags = TagManager.CombineTags(currentTags, new List<string> { validTag });
 				}
 			}
+			EditorGUILayout.EndHorizontal();
 		}
 		EditorGUILayout.EndScrollView();
 
 		GUILayout.Space(10);
 
-		if (GUILayout.Button("Apply"))
+		GUILayout.BeginHorizontal();
+		GUILayout.FlexibleSpace();
+		if (GUILayout.Button("Save", GUILayout.Width(position.width / 2)))
 		{
 			try
 			{
@@ -130,14 +122,26 @@ public class TagEditorWindow : EditorWindow
 				EditorUtility.DisplayDialog("Error", e.Message, "OK");
 			}
 		}
-		else if (GUILayout.Button("Reset"))
+		GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
+
+		GUILayout.BeginHorizontal();
+		GUILayout.FlexibleSpace();
+		if (GUILayout.Button("Reset", GUILayout.Width(position.width / 2)))
 		{
 			currentTags = TagManager.LoadTags(selectedPath);
 		}
-		else if (GUILayout.Button("Close"))
+		GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
+
+		GUILayout.BeginHorizontal();
+		GUILayout.FlexibleSpace();
+		if (GUILayout.Button("Close", GUILayout.Width(position.width / 2)))
 		{
 			this.Close();
 		}
+		GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
 	}
 }
 
