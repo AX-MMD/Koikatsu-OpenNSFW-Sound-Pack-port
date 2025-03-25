@@ -23,14 +23,14 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 			public const string Loop = "loop";
 			public const string KeepName = "keep-name";
 			public const string FormatKeepName = "format-keep-name";
+			// folder action tags
+			public const string SkipFolderName = "skip-folder-name";
+			public const string LegacyClassifier = "legacy-classifier";
 			// negation tags
 			public const string NoIndexed = "no-indexed";
 			public const string NoLoop = "no-loop";
 			public const string NoKeepName = "no-keep-name";
 			public const string Reset = "reset";
-			// folder action tags
-			public const string SkipFolderName = "skip-folder-name";
-			public const string LegacyClassifier = "legacy-classifier";
 
 			public static HashSet<string> ToHashSet() {
 				// add every fields in this class except for the ToHashSet method
@@ -95,7 +95,7 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 				}
 				else if (tag == Tags.Indexed)
 				{
-					combinedTags.RemoveAll(item => item == Tags.NoIndexed);
+					combinedTags.RemoveAll(item => item == Tags.NoIndexed || item == Tags.KeepName || item == Tags.FormatKeepName);
 				}
 				else if (tag == Tags.NoLoop)
 				{
@@ -111,11 +111,11 @@ namespace IllusionMods.Koikatsu3DSEModTools {
 				}
 				else if (tag == Tags.KeepName)
 				{
-					combinedTags.RemoveAll(item => item == Tags.FormatKeepName || item == Tags.Indexed);
+					combinedTags.RemoveAll(item => item == Tags.FormatKeepName || item == Tags.Indexed || item == Tags.NoKeepName);
 				}
 				else if (tag == Tags.FormatKeepName)
 				{
-					combinedTags.RemoveAll(item => item == Tags.KeepName || item == Tags.Indexed);
+					combinedTags.RemoveAll(item => item == Tags.KeepName || item == Tags.Indexed || item == Tags.NoKeepName);
 				}
 
 				if (combinedTags.Count == 0 || combinedTags.Last() != tag)

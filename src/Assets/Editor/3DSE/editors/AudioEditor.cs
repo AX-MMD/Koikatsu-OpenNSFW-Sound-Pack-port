@@ -98,12 +98,12 @@ public class AdjustAudioWindow : EditorWindow
 			if (silenceMode == 1) // Auto Adjust
 			{
 				GUILayout.Label("Normalize initial silence duration (ms)", EditorStyles.boldLabel);
-				silenceDurationMs = EditorGUILayout.IntField("Duration", silenceDurationMs);
+				silenceDurationMs = EditorGUILayout.IntField("Duration (ms)", silenceDurationMs);
 			}
 			else if (silenceMode == 0) // Manual
 			{
-				GUILayout.Label("Silence to add/remove at beginning (ms +/-)", EditorStyles.boldLabel);
-				silenceDurationMs = EditorGUILayout.IntField("Duration (ms)", silenceDurationMs);
+				GUILayout.Label("Silence to add/remove at beginning", EditorStyles.boldLabel);
+				silenceDurationMs = EditorGUILayout.IntField("Duration (ms +/-)", silenceDurationMs);
 			}
 			silenceThresholdDb = EditorGUILayout.IntSlider(
 				string.Format("Silence Threshold (dB)", AudioProcessor.mindB, AudioProcessor.maxdB),
@@ -120,12 +120,10 @@ public class AdjustAudioWindow : EditorWindow
 		{
 			if (volumeMode == 0) // Percent
 			{
-				GUILayout.Label(string.Format("Volume Adjustment ({0}%-{1}%)", MinVolumePercent, MaxVolumePercent), EditorStyles.boldLabel);
-				volumePercent = EditorGUILayout.IntSlider("Volume (%)", volumePercent, MinVolumePercent, MaxVolumePercent);
+				volumePercent = EditorGUILayout.IntSlider(string.Format("Volume ({0}%-{1}%)", MinVolumePercent, MaxVolumePercent), volumePercent, MinVolumePercent, MaxVolumePercent);
 			}
 			else if (volumeMode == 1) // RMS Loudness Normalize
 			{
-				GUILayout.Label("RMS Loudness Normalize", EditorStyles.boldLabel);
 				targetLoudnessDb = EditorGUILayout.IntSlider(
 					string.Format("Loudness Target (dB)", AudioProcessor.mindB, AudioProcessor.maxdB),
 					targetLoudnessDb,
@@ -197,7 +195,7 @@ public class AdjustAudioWindow : EditorWindow
 		}
 		GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
-		
+
 		GUILayout.BeginHorizontal();
 		GUILayout.FlexibleSpace();
 		if (GUILayout.Button("Close", GUILayout.Width(position.width / 2)))

@@ -609,7 +609,7 @@ namespace IllusionMods.KoikatsuStudioCsv
 			int updateCount = 0;
 			string progressName = create ? "Generating " + Utils.GetModName(modPath) : "Updating " + Utils.GetModName(modPath);
 
-			foreach (Category category in categories.OrderBy(x => x.author).ThenBy(x => x.name))
+			foreach (Category category in categories.OrderBy(x => x.author).ThenBy(x => x.name, new NaturalSortComparer()))
 			{
 				string categoryKey = category.GetKey();
 				string currentCategoryNumber = categoryNumber;
@@ -634,7 +634,7 @@ namespace IllusionMods.KoikatsuStudioCsv
 					categoryNumber = (int.Parse(categoryNumber) + 1).ToString(new string('0', categoryNumber.Length));
 				}
 
-				foreach (StudioItemParam item in category.items)
+				foreach (StudioItemParam item in category.items.OrderBy(x => x.prefabName, new NaturalSortComparer()))
 				{
 					string itemKey = item.prefabName + currentCategoryNumber;
 					if (newEntries.ContainsKey(itemKey))
@@ -663,8 +663,8 @@ namespace IllusionMods.KoikatsuStudioCsv
 				}
 			}
 
-			CsvUtils.WriteToCsv(categoryPath, newCategories.Values.ToList());
-			CsvUtils.WriteToCsv(itemListPath, newEntries.Values.ToList());
+			CsvUtils.WriteToCsv(categoryPath, newCategories.Values.ToList().OrderBy(x => int.Parse(x.GetID())));
+			CsvUtils.WriteToCsv(itemListPath, newEntries.Values.ToList().OrderBy(x => int.Parse(x.GetID())));
 			return new Utils.GenerationResult
 			{
 				createCount = createCount,

@@ -116,6 +116,7 @@ public class TagEditorWindow : EditorWindow
 			{
 				TagManager.EditTags(selectedPath, currentTags);
 				EditorUtility.DisplayDialog("Success", "Tags updated successfully.", "OK");
+				this.Close();
 			}
 			catch (TagManager.ValidationError e)
 			{
