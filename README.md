@@ -75,6 +75,7 @@ Or
 Or
 
 > VA Pack: @name of talent
+
 > SFX Pack: @OpenNSFWSP
 
 
@@ -162,8 +163,9 @@ OpenNSFW 声優 ライブラリ: 部分的
 
 または
 
-> VA Pack： タレント名
-> SFX Pack： オープンNSFWSP
+> VA Pack： @タレント名
+
+> SFX Pack： @OpenNSFWSP
 
 # ダウンロード
 
