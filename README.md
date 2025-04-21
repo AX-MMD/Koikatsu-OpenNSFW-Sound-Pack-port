@@ -16,9 +16,12 @@ OpenNSFW main library: Complete
 * `OpenNSFW/Materials`
 
 OpenNSFW VA packs: Partial
-* Complete `MoanPack[F]-Rain_va_`
-* Complete `MoanPack[F]-GeminiStarSign1`
-* Complete `VoicePack[M]-Lewddmon`
+* `MoanPack[F]-Rain_va_`
+* `MoanPack[F]-GeminiStarSign1`
+* `VoicePack[M]-Lewddmon`
+* `VoicePack[F]-Chiyo1000nights`
+* `MoanPack[F]-VelvetSheetzVA`
+* `VoicePack[F]-Hoshinomeririri`
 
 Each sound clip has been adapted into a 3DSE Studio Item to use with Timeline. They can be accessed in Charastudio's menu `Add->Item->OpenNSFW` or via the search function (`opennsfw`).
 
@@ -106,9 +109,12 @@ OpenNSFWメインライブラリ： 完全版
 * `OpenNSFW/Materials` (素材と付属品の音)
 
 OpenNSFW 声優 ライブラリ: 部分的
-* 完全版 `MoanPack[F]-Rain_va_` (呻き声)。
-* 完全版 `MoanPack[F]-GeminiStarSign1` (呻き声)。
-* 完全版 `VoicePack[M]-Lewddmon` (男 ボイスパック)。
+* `MoanPack[F]-Rain_va_` (呻き声)。
+* `MoanPack[F]-GeminiStarSign1` (呻き声)。
+* `VoicePack[M]-Lewddmon` (男 ボイスパック)。
+* `VoicePack[F]-Chiyo1000nights`
+* `MoanPack[F]-VelvetSheetzVA`
+* `VoicePack[F]-Hoshinomeririri`
 
 各サウンドクリップはタイムラインで使用できるように3DSE Studioアイテムに変換されています。これらはCharastudioのメニュー `Add->アイテム->OpenNSFW`または検索機能(`opennsfw`)からアクセスできます。
 
