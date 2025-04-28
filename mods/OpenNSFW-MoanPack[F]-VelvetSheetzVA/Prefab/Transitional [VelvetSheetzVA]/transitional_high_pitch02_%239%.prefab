@@ -9,17 +9,17 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1579375367674380}
+  m_RootGameObject: {fileID: 1012695898975376}
   m_IsPrefabParent: 1
---- !u!1 &1579375367674380
+--- !u!1 &1012695898975376
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4512391332723770}
-  - component: {fileID: 114977778261519418}
+  - component: {fileID: 4334595996176296}
+  - component: {fileID: 114446694780735762}
   m_Layer: 0
   m_Name: transitional_high_pitch02_%239%
   m_TagString: Untagged
@@ -27,12 +27,12 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4512391332723770
+--- !u!4 &4334595996176296
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1579375367674380}
+  m_GameObject: {fileID: 1012695898975376}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -40,12 +40,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114977778261519418
+--- !u!114 &114446694780735762
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1579375367674380}
+  m_GameObject: {fileID: 1012695898975376}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e1c3b8853855c264988ede3ceddb6153, type: 3}
@@ -53,7 +53,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _clip: {fileID: 8300000, guid: c033ae06be72bf046952dc1e77d8668b, type: 3}
   _soundType: 4
-  _isLoop: 1
+  _isLoop: 0
   _type: 1
   _rolloffDistance:
     min: 0.1

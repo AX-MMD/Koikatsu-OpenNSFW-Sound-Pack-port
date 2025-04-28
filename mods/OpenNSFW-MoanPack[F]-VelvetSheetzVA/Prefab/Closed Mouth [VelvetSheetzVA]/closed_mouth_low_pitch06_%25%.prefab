@@ -9,17 +9,17 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1661707160524314}
+  m_RootGameObject: {fileID: 1202302338075834}
   m_IsPrefabParent: 1
---- !u!1 &1661707160524314
+--- !u!1 &1202302338075834
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4493184884784934}
-  - component: {fileID: 114063218409866974}
+  - component: {fileID: 4000918583761938}
+  - component: {fileID: 114701465909227190}
   m_Layer: 0
   m_Name: closed_mouth_low_pitch06_%25%
   m_TagString: Untagged
@@ -27,12 +27,12 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4493184884784934
+--- !u!4 &4000918583761938
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1661707160524314}
+  m_GameObject: {fileID: 1202302338075834}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -40,12 +40,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114063218409866974
+--- !u!114 &114701465909227190
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1661707160524314}
+  m_GameObject: {fileID: 1202302338075834}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e1c3b8853855c264988ede3ceddb6153, type: 3}
@@ -53,7 +53,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _clip: {fileID: 8300000, guid: ad8917948d6175445bce1b2607c5fb2b, type: 3}
   _soundType: 4
-  _isLoop: 1
+  _isLoop: 0
   _type: 1
   _rolloffDistance:
     min: 0.1

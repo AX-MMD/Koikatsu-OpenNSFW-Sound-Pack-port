@@ -9,17 +9,17 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1326557607067788}
+  m_RootGameObject: {fileID: 1019696041004200}
   m_IsPrefabParent: 1
---- !u!1 &1326557607067788
+--- !u!1 &1019696041004200
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4246359707488750}
-  - component: {fileID: 114781704755163072}
+  - component: {fileID: 4149491286361716}
+  - component: {fileID: 114475421919849172}
   m_Layer: 0
   m_Name: gritted_teeth_high_pitch06_%69%
   m_TagString: Untagged
@@ -27,12 +27,12 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4246359707488750
+--- !u!4 &4149491286361716
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1326557607067788}
+  m_GameObject: {fileID: 1019696041004200}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -40,12 +40,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114781704755163072
+--- !u!114 &114475421919849172
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1326557607067788}
+  m_GameObject: {fileID: 1019696041004200}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e1c3b8853855c264988ede3ceddb6153, type: 3}
@@ -53,7 +53,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _clip: {fileID: 8300000, guid: d0cfde328a81618478e44e1f010e31c0, type: 3}
   _soundType: 4
-  _isLoop: 1
+  _isLoop: 0
   _type: 1
   _rolloffDistance:
     min: 0.1
