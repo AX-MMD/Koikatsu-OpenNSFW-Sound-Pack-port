@@ -57,6 +57,8 @@ In short, the terms and conditions to publish works that use audio content from 
 
 # Credit attribution 
 
+> AX_MMD's note: This seems to be mostly for Twitter/X. Personally, I either use a platform's @ system or x.com/OpenNSFWSP.
+
 ### OpenNSFW main library
 
 For smaller projects/loops:
@@ -148,6 +150,8 @@ OpenNSFW 声優 ライブラリ: 部分的
 *  OpenNSFWサウンドパックを使用した作品を公開する際の表示クレジット。
 
 # クレジットの帰属 
+
+> AX_MMDのメモ：これは主にTwitter/X向けのものと思われます。個人的には、プラットフォームの@システムかx.com/OpenNSFWSPを使用しています。
 
 ### OpenNSFWメインライブラリ
 
