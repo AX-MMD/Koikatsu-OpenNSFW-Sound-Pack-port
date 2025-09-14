@@ -85,6 +85,7 @@ Or
 
 
 # Downloads
+Each zip file contains one or more `.zipmod` files, extract the zipmods and place them inside your `/mods` folder
 
 - [Release.v2.0.OpenNSFW-Main v2.0.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.0/Release.v2.0.OpenNSFW-Main.zip)
 - [Release.v2.0.OpenNSFW-MoanPack[F]-GeminiStarSign1 v2.0.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.0/Release.v2.0.OpenNSFW-MoanPack.F.-GeminiStarSign1.v2.0.zip)
@@ -194,6 +195,7 @@ OpenNSFW 声優 ライブラリ: 部分的
 > SFX Pack： @OpenNSFWSP
 
 # ダウンロード
+各zipファイルには1つ以上の`.zipmod`ファイルが含まれています。zipmodを解凍し、`/mods`フォルダ内に配置してください。
 
 - [Release.v2.0.OpenNSFW-Main v2.0.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.0/Release.v2.0.OpenNSFW-Main.zip)
 - [Release.v2.0.OpenNSFW-MoanPack[F]-GeminiStarSign1 v2.0.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.0/Release.v2.0.OpenNSFW-MoanPack.F.-GeminiStarSign1.v2.0.zip)
@@ -205,6 +207,7 @@ OpenNSFW 声優 ライブラリ: 部分的
 - [Release.v2.1B.OpenNSFW-Extras.v2.0.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.1/Release.v2.1B.OpenNSFW-Extras.v2.0.zip)
 
 レガシーサポート (シーン配布 < mod v2.0):
+
 [Release.v1.5.1.OpenNSFW-Legacy.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v1.5.1/Release.v1.5.1.OpenNSFW-Legacy.zip)
 
 
