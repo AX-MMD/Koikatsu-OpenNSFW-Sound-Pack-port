@@ -2,6 +2,8 @@
 
 [DeepL翻訳 日本語](#コイカツ-opennsfw-sound-pack-移植)
 
+## (↓ Scroll down a bit for downloads ↓)
+
 This is a port of the [OpenNSFW Sound Pack](https://opennsfw.carrd.co/) as a mod for Koikatsu Studio. The pack contains various types of NSFW sounds from various creators, so I will divide it into multiple mods.
 
 As of 2025-03-10, contains:
@@ -113,6 +115,8 @@ Each zip file contains one or more `.zipmod` files, extract the zipmods and plac
 .  
 
 # コイカツ OpenNSFW Sound Pack 移植
+
+## (↓ ダウンロードは少し下にスクロールしてください ↓)
 
 これは[OpenNSFW Sound Pack](https://opennsfw.carrd.co/)をコイカツスタジオのMODとして移植したものです。このパックには様々なクリエイターの様々なタイプのNSFWサウンドが収録されているので、複数のMODに分けて紹介します。
 
