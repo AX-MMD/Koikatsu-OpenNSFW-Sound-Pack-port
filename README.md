@@ -116,7 +116,7 @@ Each zip file contains one or more `.zipmod` files, extract the zipmods and plac
 
 # コイカツ OpenNSFW Sound Pack 移植
 
-## (↓ **_ダウンロードは少し下にスクロールしてください_** ↓)
+## (↓ **ダウンロードは少し下にスクロールしてください** ↓)
 
 これは[OpenNSFW Sound Pack](https://opennsfw.carrd.co/)をコイカツスタジオのMODとして移植したものです。このパックには様々なクリエイターの様々なタイプのNSFWサウンドが収録されているので、複数のMODに分けて紹介します。
 
