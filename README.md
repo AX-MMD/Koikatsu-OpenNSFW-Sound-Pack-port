@@ -96,7 +96,7 @@ Each zip file contains one or more `.zipmod` files, extract the zipmods and plac
 - [Release.v2.1.OpenNSFW-VoicePack.F.-Hoshinomeririri.v2.0.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.1/Release.v2.1.OpenNSFW-VoicePack.F.-Hoshinomeririri.v2.0.zip)
 - [Release.v2.1.OpenNSFW-VoicePack.F.-Chiyo1000nights.v2.0.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.1/Release.v2.1.OpenNSFW-VoicePack.F.-Chiyo1000nights.v2.0.zip)
 - [Release.v2.1.OpenNSFW-MoanPack.F.-VelvetSheetzVA.v2.0.1.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.1/Release.v2.1.OpenNSFW-MoanPack.F.-VelvetSheetzVA.v2.0.1.zip)
-- [Release.v2.1B.OpenNSFW-Extras.v2.0.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.1/Release.v2.1B.OpenNSFW-Extras.v2.0.zip)
+- [Release.v2.1B.OpenNSFW-Extras.v2.0.1.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.1/Release.v2.1B.OpenNSFW-Extras.v2.0.1.zip)
 
 ### Legacy mod for scenes made pre v2.0: 
 [Release.v1.5.1.OpenNSFW-Legacy.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v1.5.1/Release.v1.5.1.OpenNSFW-Legacy.zip)
@@ -208,7 +208,7 @@ OpenNSFW 声優 ライブラリ: 部分的
 - [Release.v2.1.OpenNSFW-VoicePack.F.-Hoshinomeririri.v2.0.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.1/Release.v2.1.OpenNSFW-VoicePack.F.-Hoshinomeririri.v2.0.zip)
 - [Release.v2.1.OpenNSFW-VoicePack.F.-Chiyo1000nights.v2.0.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.1/Release.v2.1.OpenNSFW-VoicePack.F.-Chiyo1000nights.v2.0.zip)
 - [Release.v2.1.OpenNSFW-MoanPack.F.-VelvetSheetzVA.v2.0.1.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.1/Release.v2.1.OpenNSFW-MoanPack.F.-VelvetSheetzVA.v2.0.1.zip)
-- [Release.v2.1B.OpenNSFW-Extras.v2.0.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.1/Release.v2.1B.OpenNSFW-Extras.v2.0.zip)
+- [Release.v2.1B.OpenNSFW-Extras.v2.0.1.zip](https://github.com/AX-MMD/Koikatsu-OpenNSFW-Sound-Pack-port/releases/download/v2.1/Release.v2.1B.OpenNSFW-Extras.v2.0.1.zip)
 
 レガシーサポート (シーン配布 < mod v2.0):
 
